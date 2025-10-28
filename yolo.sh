@@ -25,6 +25,12 @@ check_requirements() {
         exit 1
     fi
     
+    if ! docker info &> /dev/null; then
+        echo "Error: Docker daemon is not running"
+        echo "Please start Docker Desktop or the Docker daemon and try again"
+        exit 1
+    fi
+    
     if ! git rev-parse --git-dir &> /dev/null; then
         echo "Error: This script must be run from within a git repository"
         exit 1
@@ -34,8 +40,12 @@ check_requirements() {
 build_image() {
     echo "Building secure coding container image..."
     
-    # Create temporary Dockerfile
-    cat > /tmp/Dockerfile.yolo-coding << 'EOF'
+    # Create temporary directory for build context
+    local build_dir
+    build_dir=$(mktemp -d)
+    
+    # Create Dockerfile in build directory
+    cat > "$build_dir/Dockerfile" << 'EOF'
 FROM ubuntu:22.04
 
 # Install essential development tools
@@ -57,6 +67,8 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     nodejs \
     npm \
+    zsh \
+    fish \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
@@ -78,14 +90,39 @@ RUN echo 'cd /workspace' >> ~/.bashrc
 CMD ["/bin/bash"]
 EOF
 
-    docker build -t "$IMAGE_NAME" -f /tmp/Dockerfile.yolo-coding /tmp/
-    rm /tmp/Dockerfile.yolo-coding
-    echo "Container image built successfully"
+    # Build the image
+    if docker build -t "$IMAGE_NAME" "$build_dir"; then
+        echo "Container image built successfully"
+    else
+        echo "Error: Failed to build container image"
+        rm -rf "$build_dir"
+        exit 1
+    fi
+    
+    # Clean up
+    rm -rf "$build_dir"
+}
+
+validate_shell() {
+    local shell="$1"
+    local valid_shells=("bash" "sh" "zsh" "fish")
+    
+    for valid_shell in "${valid_shells[@]}"; do
+        if [[ "$shell" == "$valid_shell" ]]; then
+            return 0
+        fi
+    done
+    
+    echo "Error: Unsupported shell '$shell'"
+    echo "Supported shells: ${valid_shells[*]}"
+    exit 1
 }
 
 run_container() {
     local shell_cmd="${1:-bash}"
     local git_root
+    
+    validate_shell "$shell_cmd"
     git_root=$(git rev-parse --show-toplevel)
     
     echo "Starting secure coding container..."
@@ -104,7 +141,7 @@ run_container() {
     docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
     
     # Run the container with security restrictions
-    docker run -it \
+    if ! docker run -it \
         --name "$CONTAINER_NAME" \
         --rm \
         --network bridge \
@@ -118,7 +155,10 @@ run_container() {
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
         "$IMAGE_NAME" \
-        "$shell_cmd"
+        "$shell_cmd"; then
+        echo "Error: Failed to start container"
+        exit 1
+    fi
 }
 
 main() {

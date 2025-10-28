@@ -18,8 +18,15 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 
 ## Requirements
 
-- Docker
+- Docker (Docker Desktop, Colima, or other Docker runtime)
 - Git repository (the script validates you're in one)
+
+### Docker Runtime Options
+
+This script works with various Docker runtimes:
+- **Docker Desktop**: The standard Docker installation
+- **Colima**: Lightweight Docker runtime for macOS (`colima start`)
+- **Other runtimes**: Any Docker-compatible runtime
 
 ## Usage
 
