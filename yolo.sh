@@ -89,11 +89,13 @@ RUN echo 'cd /workspace' >> ~/.bashrc
 
 # Prepare for Claude Code installation (will be done at container startup)
 RUN echo '# Install Claude Code on first run' >> ~/.bashrc
-RUN echo 'if [ ! -f ~/.local/bin/claude ] && [ ! -f /usr/local/bin/claude ]; then' >> ~/.bashrc
+RUN echo 'if [ ! -f /usr/local/bin/claude ]; then' >> ~/.bashrc
 RUN echo '  echo "Installing Claude Code..."' >> ~/.bashrc
+RUN echo '  mkdir -p ~/.local/bin' >> ~/.bashrc
 RUN echo '  curl -fsSL https://cli.anthropic.com/install.sh | sh' >> ~/.bashrc
 RUN echo '  if [ -f ~/.local/bin/claude ]; then' >> ~/.bashrc
-RUN echo '    sudo ln -sf ~/.local/bin/claude /usr/local/bin/claude' >> ~/.bashrc
+RUN echo '    sudo cp ~/.local/bin/claude /usr/local/bin/claude' >> ~/.bashrc
+RUN echo '    sudo chmod +x /usr/local/bin/claude' >> ~/.bashrc
 RUN echo '    echo "Claude Code installed successfully"' >> ~/.bashrc
 RUN echo '  fi' >> ~/.bashrc
 RUN echo 'fi' >> ~/.bashrc
@@ -156,7 +158,8 @@ run_container() {
         --read-only \
         --tmpfs /tmp:rw,noexec,nosuid,size=1g \
         --tmpfs /var/tmp:rw,noexec,nosuid,size=1g \
-        --tmpfs /home/coder:rw,exec,nosuid,size=1g \
+        --tmpfs /home/coder/.cache:rw,noexec,nosuid,size=500m \
+        --tmpfs /home/coder/.local:rw,exec,nosuid,size=500m \
         --env ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
