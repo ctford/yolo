@@ -8,15 +8,18 @@ IMAGE_NAME="yolo-coding"
 
 usage() {
     echo "Usage: $SCRIPT_NAME [OPTIONS]"
-    echo "Create a secure container environment for yolo coding"
+    echo "Create a secure container environment for development with Claude Code"
     echo ""
     echo "Options:"
     echo "  -h, --help     Show this help message"
     echo "  --build        Force rebuild the container image"
-    echo "  --shell SHELL  Specify shell (default: bash)"
     echo ""
     echo "This script must be run from within a git repository."
-    echo "The current directory will be mounted as /workspace in the container."
+    echo "The git repository root will be mounted as /workspace in the container."
+    echo ""
+    echo "Claude Code Authentication:"
+    echo "  Run 'claude' inside the container to authenticate via browser OAuth."
+    echo "  Alternatively, set ANTHROPIC_API_KEY environment variable before running."
 }
 
 check_requirements() {
@@ -51,22 +54,13 @@ FROM ubuntu:22.04
 # Install essential development tools
 RUN apt-get update && apt-get install -y \
     curl \
-    wget \
     git \
     vim \
-    nano \
-    tmux \
-    screen \
-    htop \
-    tree \
     jq \
     unzip \
     zip \
     build-essential \
     python3 \
-    python3-pip \
-    zsh \
-    fish \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20.x (required for Claude Code)
@@ -82,17 +76,6 @@ RUN echo 'coder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 WORKDIR /workspace
 RUN chown coder:coder /workspace
 
-# Install Claude Code during image build (as root to access system locations)
-RUN curl -fsSL https://install.anthropic.com | sh || \
-    curl -fsSL https://cli.anthropic.com/install.sh | sh || \
-    echo "Claude Code installation failed during build"
-
-# Make Claude Code available system-wide
-RUN if [ -f /root/.local/bin/claude ]; then \
-        cp /root/.local/bin/claude /usr/local/bin/claude && \
-        chmod +x /usr/local/bin/claude; \
-    fi
-
 # Switch to non-root user
 USER coder
 
@@ -101,24 +84,15 @@ RUN mkdir -p ~/.npm-global \
     && npm config set prefix '~/.npm-global' \
     && echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
 
+# Install Claude Code via npm (more reliable than curl-based installation)
+RUN export PATH=~/.npm-global/bin:$PATH \
+    && npm install -g @anthropic-ai/claude-code
+
 # Set up basic shell environment
-RUN echo 'export PS1="\[\033[01;32m\]yolo-container\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' >> ~/.bashrc
 RUN echo 'cd /workspace' >> ~/.bashrc
 
-# Add helpful message and manual installation instructions
-RUN echo 'if ! command -v claude >/dev/null 2>&1; then' >> ~/.bashrc
-RUN echo '  echo "📦 To install Claude Code, run:"' >> ~/.bashrc
-RUN echo '  echo "   npm install -g @anthropic-ai/claude-code"' >> ~/.bashrc
-RUN echo '  echo ""' >> ~/.bashrc
-RUN echo '  echo "💡 For headless usage without setup wizard:"' >> ~/.bashrc
-RUN echo '  echo "   claude -p \"your prompt\" --dangerously-skip-permissions"' >> ~/.bashrc
-RUN echo '  echo ""' >> ~/.bashrc
-RUN echo 'fi' >> ~/.bashrc
-
-# Set up Claude Code configuration directory and aliases
+# Set up Claude Code configuration directory
 RUN mkdir -p ~/.config/claude-code
-RUN echo 'alias claude-headless="claude --dangerously-skip-permissions --output-format stream-json"' >> ~/.bashrc
-RUN echo 'alias claude-quick="claude -p"' >> ~/.bashrc
 
 CMD ["/bin/bash"]
 EOF
@@ -136,32 +110,13 @@ EOF
     rm -rf "$build_dir"
 }
 
-validate_shell() {
-    local shell="$1"
-    local valid_shells=("bash" "sh" "zsh" "fish")
-    
-    for valid_shell in "${valid_shells[@]}"; do
-        if [[ "$shell" == "$valid_shell" ]]; then
-            return 0
-        fi
-    done
-    
-    echo "Error: Unsupported shell '$shell'"
-    echo "Supported shells: ${valid_shells[*]}"
-    exit 1
-}
-
 run_container() {
-    local shell_cmd="${1:-bash}"
     local git_root
-    
-    validate_shell "$shell_cmd"
     git_root=$(git rev-parse --show-toplevel)
-    
+
     echo "Starting secure coding container..."
     echo "Git repository: $git_root"
     echo "Mounted as: /workspace"
-    echo "Shell: $shell_cmd"
     echo ""
     
     # Remove existing container if it exists
@@ -179,8 +134,7 @@ run_container() {
         --env ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
-        "$IMAGE_NAME" \
-        "$shell_cmd"; then
+        "$IMAGE_NAME"; then
         echo "Error: Failed to start container"
         exit 1
     fi
@@ -188,8 +142,7 @@ run_container() {
 
 main() {
     local force_build=false
-    local shell_cmd="bash"
-    
+
     while [[ $# -gt 0 ]]; do
         case $1 in
             -h|--help)
@@ -200,10 +153,6 @@ main() {
                 force_build=true
                 shift
                 ;;
-            --shell)
-                shell_cmd="$2"
-                shift 2
-                ;;
             *)
                 echo "Unknown option: $1"
                 usage
@@ -211,15 +160,15 @@ main() {
                 ;;
         esac
     done
-    
+
     check_requirements
-    
+
     # Build image if it doesn't exist or force build is requested
     if [[ "$force_build" == true ]] || ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
         build_image
     fi
-    
-    run_container "$shell_cmd"
+
+    run_container
 }
 
 main "$@"

@@ -17,15 +17,7 @@ if ! command -v claude >/dev/null 2>&1; then
     exit 1
 fi
 
-# Check if ANTHROPIC_API_KEY is set
-if [[ -z "${ANTHROPIC_API_KEY:-}" ]]; then
-    echo "❌ ANTHROPIC_API_KEY environment variable is not set"
-    echo "   Please set your API key: export ANTHROPIC_API_KEY=your_key_here"
-    exit 1
-fi
-
-# Start Claude Code in unrestricted mode
+# Start Claude Code in unrestricted mode (will use browser OAuth if not authenticated)
 exec claude \
     --dangerously-skip-permissions \
-    --allow-all-tools \
     "$@"

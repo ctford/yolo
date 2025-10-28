@@ -37,9 +37,6 @@ This script works with various Docker runtimes:
 # Force rebuild the container image
 ./yolo.sh --build
 
-# Use a different shell
-./yolo.sh --shell zsh
-
 # Show help
 ./yolo.sh --help
 ```
@@ -47,10 +44,11 @@ This script works with various Docker runtimes:
 ## What's Included
 
 The container comes with essential development tools:
-- **Languages**: Python 3, Node.js/npm
-- **Editors**: vim, nano
-- **Tools**: git, curl, wget, jq, tmux, screen, htop, tree
-- **Build tools**: build-essential, unzip, zip
+- **Languages**: Python 3, Node.js 20.x
+- **Editor**: vim
+- **Tools**: git, curl, jq, unzip, zip
+- **Build tools**: build-essential
+- **AI Assistant**: Claude Code (installed via npm)
 
 ## How It Works
 
@@ -67,7 +65,19 @@ The container comes with essential development tools:
 - **Working Directory**: `/workspace` (your git repo)
 - **User**: `coder` (non-root with sudo access)
 - **Home**: `/home/coder` (temporary, not persisted)
-- **Prompt**: Clearly labeled as `yolo-container`
+- **Shell**: bash
+
+## Claude Code Authentication
+
+Claude Code is pre-installed in the container. To use it:
+
+1. **Browser OAuth** (recommended): Run `claude` inside the container and authenticate via browser
+2. **API Key**: Set `ANTHROPIC_API_KEY` environment variable before starting the container
+
+For unrestricted mode (bypasses all safety checks):
+```bash
+./claude-unrestricted.sh
+```
 
 ## Safety Philosophy
 

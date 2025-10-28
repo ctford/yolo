@@ -2,7 +2,7 @@
 
 ## Container Rebuild Required
 
-When making changes to the yolo.sh script that affect the Docker image (especially Claude Code installation), you need to rebuild the container:
+When making changes to the yolo.sh script that affect the Docker image, you need to rebuild the container:
 
 ```bash
 ./yolo.sh --build
@@ -10,7 +10,22 @@ When making changes to the yolo.sh script that affect the Docker image (especial
 
 This forces a rebuild of the Docker image with the latest changes.
 
-## Known Issues
+## Authentication
 
-- Claude Code installation during build may fail due to DNS resolution issues in some Docker environments
-- Container may need manual Claude Code installation if automatic installation fails
+Claude Code is installed via npm during the image build process. Authentication options:
+
+1. **Browser OAuth** (recommended): Run `claude` inside the container and authenticate via browser
+2. **API Key**: Set `ANTHROPIC_API_KEY` environment variable before starting the container:
+   ```bash
+   export ANTHROPIC_API_KEY=sk-ant-...
+   ./yolo.sh
+   ```
+
+## Unrestricted Mode
+
+For unrestricted access (bypasses all permission checks):
+```bash
+./claude-unrestricted.sh
+```
+
+**Warning**: Only use in secure, isolated environments like this container.
