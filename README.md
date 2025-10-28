@@ -14,25 +14,30 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 ### Strong Host Protection
 ✅ **Filesystem Isolation**: Only your git repository is mounted - no access to the rest of your system
 ✅ **No New Privileges**: Prevents privilege escalation via setuid binaries
+✅ **Read-Only Root Filesystem**: System files are immutable, prevents tampering
 ✅ **Temporary Directory Hardening**: `/tmp` and `/var/tmp` mounted with `noexec`, `nosuid` flags
 ✅ **Namespace Isolation**: Separate cgroup, IPC, mount, network, PID, and UTS namespaces
 ✅ **Git Repository Required**: Must be run from within a git repository for safety
 ✅ **Session Cleanup**: Container removed after exit (no persistent state)
 
+### Container Hardening
+✅ **Minimal Capabilities**: All capabilities dropped except `NET_BIND_SERVICE`
+✅ **Resource Limits**: 4GB memory, 2 CPUs, 512 process limit
+✅ **Restricted Sudo**: Sudo access limited to package management only (`apt`, `apt-get`, `dpkg`)
+✅ **Writable User Space**: Only `/home/coder` is writable and executable (2GB tmpfs)
+
 ### Network & Development
 ✅ **Full Internet Access**: Download packages, access APIs, and use development tools
 ✅ **Pre-installed Tools**: Python 3, Node.js 20.x, git, vim, build-essential, Claude Code
 
-### Current Limitations
+### Remaining Limitations
 
-⚠️ **Container-Internal Security**: The container prioritizes development flexibility over internal hardening:
-- User has passwordless sudo access (root-equivalent inside container)
-- Writable root filesystem (not read-only as in earlier versions)
-- Default Docker capabilities (not dropped for compatibility)
-- No resource limits (memory, CPU, PIDs)
+⚠️ **Development Flexibility Trade-offs**:
+- Sudo access to package management (allows installing system packages)
 - Full network access (no egress filtering)
+- User home directory is executable (needed for npm/pip packages)
 
-**Philosophy**: This container provides strong **host system protection** while giving you freedom to experiment inside. The primary security boundary is the Docker isolation layer. Treat the container as a sandbox where anything can happen, but your host remains safe.  
+**Philosophy**: This container provides strong **defense-in-depth security** while maintaining development usability. Multiple security layers protect both the host system and container internals. The primary boundary is Docker isolation, reinforced by read-only filesystem, dropped capabilities, and resource limits.  
 
 ## Requirements
 
@@ -72,11 +77,12 @@ The container comes with essential development tools:
 
 1. **Validation**: Checks for Docker and confirms you're in a git repository
 2. **Image Building**: Creates an Ubuntu-based development environment with essential tools
-3. **Container Launch**: Runs with security settings focused on host protection:
-   - Host filesystem isolated (only git repo mounted)
-   - Temporary directories (`/tmp`, `/var/tmp`) hardened with `noexec`, `nosuid`
-   - No new privileges allowed (`--security-opt no-new-privileges:true`)
-   - Namespace isolation for process and network separation
+3. **Container Launch**: Runs with comprehensive security hardening:
+   - **Filesystem**: Read-only root, writable tmpfs for `/home/coder`, `/tmp`, `/var/tmp`, `/run`
+   - **Capabilities**: All dropped except `NET_BIND_SERVICE`
+   - **Resources**: Limited to 4GB memory, 2 CPUs, 512 processes
+   - **Privileges**: No new privileges, restricted sudo (apt only)
+   - **Isolation**: Separate namespaces, only git repo mounted from host
 
 ## Container Environment
 
@@ -136,12 +142,17 @@ This runs a comprehensive security audit and provides actionable recommendations
 
 ## Known Security Limitations
 
-This container prioritizes ease of development over internal hardening. Key limitations:
+This container now implements strong security hardening with some remaining trade-offs:
 
-1. **Passwordless sudo**: User has root-equivalent access inside container
-2. **Writable filesystem**: Malicious code could modify system files (within session)
-3. **Full network access**: No egress filtering or network restrictions
-4. **Default capabilities**: Standard Docker capability set (not minimized)
-5. **No resource limits**: Processes could consume all available resources
+### Implemented Security ✅
+1. ✅ **Restricted sudo**: Limited to package management only (`apt`, `apt-get`, `dpkg`)
+2. ✅ **Read-only filesystem**: System files are immutable
+3. ✅ **Minimal capabilities**: All dropped except `NET_BIND_SERVICE`
+4. ✅ **Resource limits**: 4GB memory, 2 CPUs, 512 PIDs
 
-**These are acceptable tradeoffs** for a development sandbox where the primary security boundary is Docker isolation. Your host system remains protected regardless of what happens inside the container.
+### Remaining Trade-offs ⚠️
+1. **Package installation**: Can still install system packages via apt (supply chain risk)
+2. **Full network access**: No egress filtering or network restrictions
+3. **Executable home directory**: `/home/coder` is writable and executable (needed for development)
+
+**Security Posture**: This container now implements **defense-in-depth** with multiple security layers. Both host protection and container-internal hardening are strong. The remaining trade-offs are necessary for development usability while maintaining robust security boundaries.
