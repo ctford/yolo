@@ -80,25 +80,23 @@ RUN echo 'coder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
 WORKDIR /workspace
 RUN chown coder:coder /workspace
 
+# Install Claude Code during image build (as root to access system locations)
+RUN curl -fsSL https://install.anthropic.com | sh || \
+    curl -fsSL https://cli.anthropic.com/install.sh | sh || \
+    echo "Claude Code installation failed during build"
+
+# Make Claude Code available system-wide
+RUN if [ -f /root/.local/bin/claude ]; then \
+        cp /root/.local/bin/claude /usr/local/bin/claude && \
+        chmod +x /usr/local/bin/claude; \
+    fi
+
 # Switch to non-root user
 USER coder
 
 # Set up basic shell environment
 RUN echo 'export PS1="\[\033[01;32m\]yolo-container\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' >> ~/.bashrc
 RUN echo 'cd /workspace' >> ~/.bashrc
-
-# Prepare for Claude Code installation (will be done at container startup)
-RUN echo '# Install Claude Code on first run' >> ~/.bashrc
-RUN echo 'if [ ! -f /usr/local/bin/claude ]; then' >> ~/.bashrc
-RUN echo '  echo "Installing Claude Code..."' >> ~/.bashrc
-RUN echo '  mkdir -p ~/.local/bin' >> ~/.bashrc
-RUN echo '  curl -fsSL https://cli.anthropic.com/install.sh | sh' >> ~/.bashrc
-RUN echo '  if [ -f ~/.local/bin/claude ]; then' >> ~/.bashrc
-RUN echo '    sudo cp ~/.local/bin/claude /usr/local/bin/claude' >> ~/.bashrc
-RUN echo '    sudo chmod +x /usr/local/bin/claude' >> ~/.bashrc
-RUN echo '    echo "Claude Code installed successfully"' >> ~/.bashrc
-RUN echo '  fi' >> ~/.bashrc
-RUN echo 'fi' >> ~/.bashrc
 
 CMD ["/bin/bash"]
 EOF
@@ -151,10 +149,9 @@ run_container() {
     if ! docker run -it \
         --name "$CONTAINER_NAME" \
         --rm \
-        --network bridge \
+        --dns 8.8.8.8 \
+        --dns 1.1.1.1 \
         --security-opt no-new-privileges:true \
-        --cap-drop ALL \
-        --cap-add NET_BIND_SERVICE \
         --read-only \
         --tmpfs /tmp:rw,noexec,nosuid,size=1g \
         --tmpfs /var/tmp:rw,noexec,nosuid,size=1g \
