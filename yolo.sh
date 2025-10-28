@@ -65,11 +65,13 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     python3 \
     python3-pip \
-    nodejs \
-    npm \
     zsh \
     fish \
     && rm -rf /var/lib/apt/lists/*
+
+# Install Node.js 20.x (required for Claude Code)
+RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
+    && apt-get install -y nodejs
 
 # Create non-root user
 RUN useradd -m -s /bin/bash -u 1000 coder
@@ -94,39 +96,20 @@ RUN if [ -f /root/.local/bin/claude ]; then \
 # Switch to non-root user
 USER coder
 
+# Set up npm global directory for non-root user
+RUN mkdir -p ~/.npm-global \
+    && npm config set prefix '~/.npm-global' \
+    && echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
+
 # Set up basic shell environment
 RUN echo 'export PS1="\[\033[01;32m\]yolo-container\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' >> ~/.bashrc
 RUN echo 'cd /workspace' >> ~/.bashrc
 
-# Add Claude Code installation check and install if needed
-RUN echo 'CLAUDE_LOG="/workspace/.claude-install.log"' >> ~/.bashrc
-RUN echo 'if [ ! -f /usr/local/bin/claude ] && [ ! -f ~/.local/bin/claude ]; then' >> ~/.bashrc
-RUN echo '  echo "$(date): Starting Claude Code installation..." | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '  echo "Installing Claude Code..."' >> ~/.bashrc
-RUN echo '  mkdir -p ~/.local/bin' >> ~/.bashrc
-RUN echo '  echo "$(date): Testing network connectivity..." | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '  if ping -c 1 8.8.8.8 >/dev/null 2>&1; then' >> ~/.bashrc
-RUN echo '    echo "$(date): Network connectivity OK" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '  else' >> ~/.bashrc
-RUN echo '    echo "$(date): ERROR - No network connectivity" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '  fi' >> ~/.bashrc
-RUN echo '  if curl -fsSL https://install.anthropic.com 2>&1 | tee -a "$CLAUDE_LOG" | sh 2>&1 | tee -a "$CLAUDE_LOG"; then' >> ~/.bashrc
-RUN echo '    echo "$(date): Claude Code installation completed" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '    if [ -f ~/.local/bin/claude ]; then' >> ~/.bashrc
-RUN echo '      echo "$(date): Copying claude to /usr/local/bin/" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '      sudo cp ~/.local/bin/claude /usr/local/bin/claude 2>&1 | tee -a "$CLAUDE_LOG" || true' >> ~/.bashrc
-RUN echo '      sudo chmod +x /usr/local/bin/claude 2>&1 | tee -a "$CLAUDE_LOG" || true' >> ~/.bashrc
-RUN echo '      echo "$(date): Claude Code available at: $(which claude)" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '    else' >> ~/.bashrc
-RUN echo '      echo "$(date): ERROR - claude binary not found in ~/.local/bin/" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '    fi' >> ~/.bashrc
-RUN echo '  else' >> ~/.bashrc
-RUN echo '    echo "$(date): ERROR - Claude Code installation failed" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
-RUN echo '    echo "Could not install Claude Code automatically. Install manually with:"' >> ~/.bashrc
-RUN echo '    echo "curl -fsSL https://install.anthropic.com | sh"' >> ~/.bashrc
-RUN echo '  fi' >> ~/.bashrc
-RUN echo 'else' >> ~/.bashrc
-RUN echo '  echo "$(date): Claude Code already installed at: $(which claude)" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
+# Add helpful message and manual installation instructions
+RUN echo 'if ! command -v claude >/dev/null 2>&1; then' >> ~/.bashrc
+RUN echo '  echo "📦 To install Claude Code, run:"' >> ~/.bashrc
+RUN echo '  echo "   npm install -g @anthropic-ai/claude-code"' >> ~/.bashrc
+RUN echo '  echo ""' >> ~/.bashrc
 RUN echo 'fi' >> ~/.bashrc
 
 CMD ["/bin/bash"]
