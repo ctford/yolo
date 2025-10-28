@@ -99,19 +99,34 @@ RUN echo 'export PS1="\[\033[01;32m\]yolo-container\[\033[00m\]:\[\033[01;34m\]\
 RUN echo 'cd /workspace' >> ~/.bashrc
 
 # Add Claude Code installation check and install if needed
+RUN echo 'CLAUDE_LOG="/workspace/.claude-install.log"' >> ~/.bashrc
 RUN echo 'if [ ! -f /usr/local/bin/claude ] && [ ! -f ~/.local/bin/claude ]; then' >> ~/.bashrc
+RUN echo '  echo "$(date): Starting Claude Code installation..." | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
 RUN echo '  echo "Installing Claude Code..."' >> ~/.bashrc
 RUN echo '  mkdir -p ~/.local/bin' >> ~/.bashrc
-RUN echo '  if curl -fsSL https://install.anthropic.com | sh 2>/dev/null; then' >> ~/.bashrc
-RUN echo '    echo "Claude Code installed successfully"' >> ~/.bashrc
+RUN echo '  echo "$(date): Testing network connectivity..." | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
+RUN echo '  if ping -c 1 8.8.8.8 >/dev/null 2>&1; then' >> ~/.bashrc
+RUN echo '    echo "$(date): Network connectivity OK" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
+RUN echo '  else' >> ~/.bashrc
+RUN echo '    echo "$(date): ERROR - No network connectivity" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
+RUN echo '  fi' >> ~/.bashrc
+RUN echo '  if curl -fsSL https://install.anthropic.com 2>&1 | tee -a "$CLAUDE_LOG" | sh 2>&1 | tee -a "$CLAUDE_LOG"; then' >> ~/.bashrc
+RUN echo '    echo "$(date): Claude Code installation completed" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
 RUN echo '    if [ -f ~/.local/bin/claude ]; then' >> ~/.bashrc
-RUN echo '      sudo cp ~/.local/bin/claude /usr/local/bin/claude 2>/dev/null || true' >> ~/.bashrc
-RUN echo '      sudo chmod +x /usr/local/bin/claude 2>/dev/null || true' >> ~/.bashrc
+RUN echo '      echo "$(date): Copying claude to /usr/local/bin/" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
+RUN echo '      sudo cp ~/.local/bin/claude /usr/local/bin/claude 2>&1 | tee -a "$CLAUDE_LOG" || true' >> ~/.bashrc
+RUN echo '      sudo chmod +x /usr/local/bin/claude 2>&1 | tee -a "$CLAUDE_LOG" || true' >> ~/.bashrc
+RUN echo '      echo "$(date): Claude Code available at: $(which claude)" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
+RUN echo '    else' >> ~/.bashrc
+RUN echo '      echo "$(date): ERROR - claude binary not found in ~/.local/bin/" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
 RUN echo '    fi' >> ~/.bashrc
 RUN echo '  else' >> ~/.bashrc
+RUN echo '    echo "$(date): ERROR - Claude Code installation failed" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
 RUN echo '    echo "Could not install Claude Code automatically. Install manually with:"' >> ~/.bashrc
 RUN echo '    echo "curl -fsSL https://install.anthropic.com | sh"' >> ~/.bashrc
 RUN echo '  fi' >> ~/.bashrc
+RUN echo 'else' >> ~/.bashrc
+RUN echo '  echo "$(date): Claude Code already installed at: $(which claude)" | tee -a "$CLAUDE_LOG"' >> ~/.bashrc
 RUN echo 'fi' >> ~/.bashrc
 
 CMD ["/bin/bash"]
