@@ -5,6 +5,13 @@
 
 set -euo pipefail
 
+# Check if running inside the container
+if [[ "$(whoami)" != "coder" ]] || [[ ! -f /.dockerenv ]]; then
+    echo "❌ Error: This script must be run inside the yolo container"
+    echo "   Start the container with: ./yolo.sh"
+    exit 1
+fi
+
 echo "⚠️  WARNING: Starting Claude Code in unrestricted mode"
 echo "   This bypasses all safety mechanisms and permission checks"
 echo "   Use only in secure, isolated environments"
