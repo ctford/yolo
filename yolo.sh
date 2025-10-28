@@ -70,7 +70,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 # Create non-root user
 RUN useradd -m -s /bin/bash -u 1000 coder
 RUN usermod -aG sudo coder
-RUN echo 'coder ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers
+# Restrict sudo to package management only for security
+RUN echo 'coder ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/apt, /usr/bin/dpkg' >> /etc/sudoers
 
 # Set up workspace
 WORKDIR /workspace
@@ -129,8 +130,17 @@ run_container() {
         --dns 8.8.8.8 \
         --dns 1.1.1.1 \
         --security-opt no-new-privileges:true \
+        --cap-drop=ALL \
+        --cap-add=NET_BIND_SERVICE \
+        --read-only \
         --tmpfs /tmp:rw,noexec,nosuid,size=1g \
         --tmpfs /var/tmp:rw,noexec,nosuid,size=1g \
+        --tmpfs /home/coder:rw,exec,size=2g \
+        --tmpfs /run:rw,nosuid,nodev,size=128m \
+        --memory="4g" \
+        --memory-swap="4g" \
+        --cpus="2.0" \
+        --pids-limit=512 \
         --env ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
