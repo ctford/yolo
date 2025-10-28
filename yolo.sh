@@ -87,6 +87,17 @@ USER coder
 RUN echo 'export PS1="\[\033[01;32m\]yolo-container\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' >> ~/.bashrc
 RUN echo 'cd /workspace' >> ~/.bashrc
 
+# Prepare for Claude Code installation (will be done at container startup)
+RUN echo '# Install Claude Code on first run' >> ~/.bashrc
+RUN echo 'if [ ! -f ~/.local/bin/claude ] && [ ! -f /usr/local/bin/claude ]; then' >> ~/.bashrc
+RUN echo '  echo "Installing Claude Code..."' >> ~/.bashrc
+RUN echo '  curl -fsSL https://cli.anthropic.com/install.sh | sh' >> ~/.bashrc
+RUN echo '  if [ -f ~/.local/bin/claude ]; then' >> ~/.bashrc
+RUN echo '    sudo ln -sf ~/.local/bin/claude /usr/local/bin/claude' >> ~/.bashrc
+RUN echo '    echo "Claude Code installed successfully"' >> ~/.bashrc
+RUN echo '  fi' >> ~/.bashrc
+RUN echo 'fi' >> ~/.bashrc
+
 CMD ["/bin/bash"]
 EOF
 
@@ -130,12 +141,6 @@ run_container() {
     echo "Mounted as: /workspace"
     echo "Shell: $shell_cmd"
     echo ""
-    echo "Security features:"
-    echo "  ✓ Isolated from host filesystem (only git repo mounted)"
-    echo "  ✓ Network access enabled"
-    echo "  ✓ Non-root user inside container"
-    echo "  ✓ No privileged access"
-    echo ""
     
     # Remove existing container if it exists
     docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
@@ -152,6 +157,7 @@ run_container() {
         --tmpfs /tmp:rw,noexec,nosuid,size=1g \
         --tmpfs /var/tmp:rw,noexec,nosuid,size=1g \
         --tmpfs /home/coder:rw,exec,nosuid,size=1g \
+        --env ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
         "$IMAGE_NAME" \
