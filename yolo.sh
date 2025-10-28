@@ -98,6 +98,22 @@ USER coder
 RUN echo 'export PS1="\[\033[01;32m\]yolo-container\[\033[00m\]:\[\033[01;34m\]\w\[\033[00m\]\$ "' >> ~/.bashrc
 RUN echo 'cd /workspace' >> ~/.bashrc
 
+# Add Claude Code installation check and install if needed
+RUN echo 'if [ ! -f /usr/local/bin/claude ] && [ ! -f ~/.local/bin/claude ]; then' >> ~/.bashrc
+RUN echo '  echo "Installing Claude Code..."' >> ~/.bashrc
+RUN echo '  mkdir -p ~/.local/bin' >> ~/.bashrc
+RUN echo '  if curl -fsSL https://install.anthropic.com | sh 2>/dev/null; then' >> ~/.bashrc
+RUN echo '    echo "Claude Code installed successfully"' >> ~/.bashrc
+RUN echo '    if [ -f ~/.local/bin/claude ]; then' >> ~/.bashrc
+RUN echo '      sudo cp ~/.local/bin/claude /usr/local/bin/claude 2>/dev/null || true' >> ~/.bashrc
+RUN echo '      sudo chmod +x /usr/local/bin/claude 2>/dev/null || true' >> ~/.bashrc
+RUN echo '    fi' >> ~/.bashrc
+RUN echo '  else' >> ~/.bashrc
+RUN echo '    echo "Could not install Claude Code automatically. Install manually with:"' >> ~/.bashrc
+RUN echo '    echo "curl -fsSL https://install.anthropic.com | sh"' >> ~/.bashrc
+RUN echo '  fi' >> ~/.bashrc
+RUN echo 'fi' >> ~/.bashrc
+
 CMD ["/bin/bash"]
 EOF
 
@@ -152,11 +168,8 @@ run_container() {
         --dns 8.8.8.8 \
         --dns 1.1.1.1 \
         --security-opt no-new-privileges:true \
-        --read-only \
         --tmpfs /tmp:rw,noexec,nosuid,size=1g \
         --tmpfs /var/tmp:rw,noexec,nosuid,size=1g \
-        --tmpfs /home/coder/.cache:rw,noexec,nosuid,size=500m \
-        --tmpfs /home/coder/.local:rw,exec,nosuid,size=500m \
         --env ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
