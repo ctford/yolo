@@ -110,7 +110,15 @@ RUN echo 'if ! command -v claude >/dev/null 2>&1; then' >> ~/.bashrc
 RUN echo '  echo "📦 To install Claude Code, run:"' >> ~/.bashrc
 RUN echo '  echo "   npm install -g @anthropic-ai/claude-code"' >> ~/.bashrc
 RUN echo '  echo ""' >> ~/.bashrc
+RUN echo '  echo "💡 For headless usage without setup wizard:"' >> ~/.bashrc
+RUN echo '  echo "   claude -p \"your prompt\" --dangerously-skip-permissions"' >> ~/.bashrc
+RUN echo '  echo ""' >> ~/.bashrc
 RUN echo 'fi' >> ~/.bashrc
+
+# Set up Claude Code configuration directory and aliases
+RUN mkdir -p ~/.config/claude-code
+RUN echo 'alias claude-headless="claude --dangerously-skip-permissions --output-format stream-json"' >> ~/.bashrc
+RUN echo 'alias claude-quick="claude -p"' >> ~/.bashrc
 
 CMD ["/bin/bash"]
 EOF
