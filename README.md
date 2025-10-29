@@ -9,6 +9,24 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 - Experimental development without risking your host system
 - Isolated environments with network access but filesystem protection
 
+### When to Use YOLO vs. Official Devcontainer
+
+**Use YOLO for:**
+- Quick experimentation and prototyping
+- Terminal-based workflows (no IDE required)
+- Learning Claude Code's capabilities
+- Demos, workshops, and testing
+- CI/CD integration
+
+**Use the [official devcontainer](https://docs.claude.com/en/docs/claude-code/devcontainer) for:**
+- Team onboarding with consistent environments
+- Production development workflows
+- VS Code integration with extensions and debugging
+- Granular network firewall rules
+- Long-term project development
+
+YOLO is a lightweight, opinionated sandbox for fast iteration. The official devcontainer is a comprehensive team development environment.
+
 ## Security Features
 
 ### Strong Host Protection
