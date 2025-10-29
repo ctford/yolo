@@ -61,6 +61,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     build-essential \
     python3 \
+    ripgrep \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20.x (required for Claude Code)

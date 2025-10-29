@@ -87,7 +87,7 @@ This script works with various Docker runtimes:
 The container comes with essential development tools:
 - **Languages**: Python 3, Node.js 20.x
 - **Editor**: vim
-- **Tools**: git, curl, jq, unzip, zip
+- **Tools**: git, curl, jq, unzip, zip, ripgrep
 - **Build tools**: build-essential
 - **AI Assistant**: Claude Code (installed via npm)
 
