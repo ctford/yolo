@@ -31,7 +31,8 @@
       "Bash(wget:*)",
       "Bash(./yolo.sh:*)",
       "WebFetch(domain:docs.claude.com)",
-      "WebSearch"
+      "WebSearch",
+      "WebFetch(domain:github.com)"
     ],
     "deny": [
       "Read(//root/**)",
