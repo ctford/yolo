@@ -76,11 +76,16 @@ RUN NODE_VERSION=20.18.1 && \
     rm /tmp/node.tar.xz && \
     node --version && npm --version
 
+# Install Claude Code globally as root (survives tmpfs mount of /home/coder)
+RUN npm install -g @anthropic-ai/claude-code && \
+    claude --version
+
 # Create non-root user
 RUN useradd -m -s /bin/bash -u 1000 coder
 RUN usermod -aG sudo coder
 # Restrict sudo to package management only for security
-RUN echo 'coder ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/apt, /usr/bin/dpkg' > /etc/sudoers.d/coder && \
+RUN mkdir -p /etc/sudoers.d && \
+    echo 'coder ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/apt, /usr/bin/dpkg' > /etc/sudoers.d/coder && \
     chmod 0440 /etc/sudoers.d/coder
 
 # Set up workspace
@@ -90,25 +95,14 @@ RUN chown coder:coder /workspace
 # Switch to non-root user
 USER coder
 
-# Set up npm global directory for non-root user
-RUN mkdir -p ~/.npm-global \
-    && npm config set prefix '~/.npm-global' \
-    && echo 'export PATH=~/.npm-global/bin:$PATH' >> ~/.bashrc
-
-# Install Claude Code via npm (more reliable than curl-based installation)
-RUN export PATH=~/.npm-global/bin:$PATH \
-    && npm install -g @anthropic-ai/claude-code
-
 # Create entrypoint script to set up home directory (needed because home is mounted as tmpfs)
 USER root
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'set -e' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Recreate home directory setup (tmpfs overlay clears it)' >> /entrypoint.sh && \
-    echo 'mkdir -p ~/.npm-global ~/.config/claude-code' >> /entrypoint.sh && \
-    echo 'npm config set prefix ~/.npm-global' >> /entrypoint.sh && \
-    echo 'echo "export PATH=~/.npm-global/bin:\$PATH" > ~/.bashrc' >> /entrypoint.sh && \
-    echo 'echo "cd /workspace" >> ~/.bashrc' >> /entrypoint.sh && \
+    echo 'mkdir -p ~/.config/claude-code' >> /entrypoint.sh && \
+    echo 'echo "cd /workspace" > ~/.bashrc' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Start bash shell' >> /entrypoint.sh && \
     echo 'exec /bin/bash' >> /entrypoint.sh && \
