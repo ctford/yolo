@@ -24,16 +24,17 @@ usage() {
 
 check_requirements() {
     if ! command -v docker &> /dev/null; then
-        echo "Error: Docker is required but not installed"
+        echo "Error: docker command not found"
+        echo "Please install Docker, Colima, Podman, or another Docker-compatible runtime"
         exit 1
     fi
-    
+
     if ! docker info &> /dev/null; then
-        echo "Error: Docker daemon is not running"
-        echo "Please start Docker Desktop or the Docker daemon and try again"
+        echo "Error: Container runtime is not running"
+        echo "Please start your container runtime (Docker Desktop, Colima, etc.) and try again"
         exit 1
     fi
-    
+
     if ! git rev-parse --git-dir &> /dev/null; then
         echo "Error: This script must be run from within a git repository"
         exit 1
