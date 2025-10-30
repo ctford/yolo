@@ -12,14 +12,9 @@ This forces a rebuild of the Docker image with the latest changes.
 
 ## Authentication
 
-Claude Code is installed via npm during the image build process. Authentication options:
+Claude Code is installed via npm during the image build process.
 
-1. **Browser OAuth** (recommended): Run `claude` inside the container and authenticate via browser
-2. **API Key**: Set `ANTHROPIC_API_KEY` environment variable before starting the container:
-   ```bash
-   export ANTHROPIC_API_KEY=sk-ant-...
-   ./yolo.sh
-   ```
+**Browser OAuth**: Run `claude` inside the container and authenticate via browser when prompted.
 
 ## Unrestricted Mode
 

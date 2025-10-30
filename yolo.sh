@@ -19,7 +19,6 @@ usage() {
     echo ""
     echo "Claude Code Authentication:"
     echo "  Run 'claude' inside the container to authenticate via browser OAuth."
-    echo "  Alternatively, set ANTHROPIC_API_KEY environment variable before running."
 }
 
 check_requirements() {
@@ -154,7 +153,6 @@ run_container() {
         --memory-swap="4g" \
         --cpus="2.0" \
         --pids-limit=512 \
-        --env ANTHROPIC_API_KEY="${ANTHROPIC_API_KEY:-}" \
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
         "$IMAGE_NAME"; then
