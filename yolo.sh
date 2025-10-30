@@ -43,11 +43,14 @@ check_requirements() {
 
 build_image() {
     echo "Building secure coding container image..."
-    
+
     # Create temporary directory for build context
     local build_dir
     build_dir=$(mktemp -d)
-    
+
+    # Set up cleanup trap
+    trap "rm -rf '$build_dir'" EXIT ERR
+
     # Create Dockerfile in build directory
     cat > "$build_dir/Dockerfile" << 'EOF'
 FROM ubuntu:22.04
@@ -66,14 +69,19 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20.x (required for Claude Code)
-RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
-    && apt-get install -y nodejs
+# Download and install official Node.js binaries directly
+RUN NODE_VERSION=20.18.1 && \
+    curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz -o /tmp/node.tar.xz && \
+    tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 && \
+    rm /tmp/node.tar.xz && \
+    node --version && npm --version
 
 # Create non-root user
 RUN useradd -m -s /bin/bash -u 1000 coder
 RUN usermod -aG sudo coder
 # Restrict sudo to package management only for security
-RUN echo 'coder ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/apt, /usr/bin/dpkg' >> /etc/sudoers
+RUN echo 'coder ALL=(ALL) NOPASSWD: /usr/bin/apt-get, /usr/bin/apt, /usr/bin/dpkg' > /etc/sudoers.d/coder && \
+    chmod 0440 /etc/sudoers.d/coder
 
 # Set up workspace
 WORKDIR /workspace
@@ -116,12 +124,10 @@ EOF
         echo "Container image built successfully"
     else
         echo "Error: Failed to build container image"
-        rm -rf "$build_dir"
         exit 1
     fi
-    
-    # Clean up
-    rm -rf "$build_dir"
+
+    # Cleanup handled by trap
 }
 
 run_container() {

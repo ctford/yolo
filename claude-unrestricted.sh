@@ -6,7 +6,7 @@
 set -euo pipefail
 
 # Check if running inside the container
-if [[ "$(whoami)" != "coder" ]] || [[ ! -f /.dockerenv ]]; then
+if [[ "$USER" != "coder" ]] || [[ ! -d /workspace ]]; then
     echo "❌ Error: This script must be run inside the yolo container"
     echo "   Start the container with: ./yolo.sh"
     exit 1
