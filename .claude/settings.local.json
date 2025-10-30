@@ -32,7 +32,8 @@
       "Bash(./yolo.sh:*)",
       "WebFetch(domain:docs.claude.com)",
       "WebSearch",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(colima status:*)"
     ],
     "deny": [
       "Read(//root/**)",

@@ -90,12 +90,23 @@ RUN mkdir -p ~/.npm-global \
 RUN export PATH=~/.npm-global/bin:$PATH \
     && npm install -g @anthropic-ai/claude-code
 
-# Set up basic shell environment
-RUN echo 'cd /workspace' >> ~/.bashrc
+# Create entrypoint script to set up home directory (needed because home is mounted as tmpfs)
+USER root
+RUN echo '#!/bin/bash' > /entrypoint.sh && \
+    echo 'set -e' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Recreate home directory setup (tmpfs overlay clears it)' >> /entrypoint.sh && \
+    echo 'mkdir -p ~/.npm-global ~/.config/claude-code' >> /entrypoint.sh && \
+    echo 'npm config set prefix ~/.npm-global' >> /entrypoint.sh && \
+    echo 'echo "export PATH=~/.npm-global/bin:\$PATH" > ~/.bashrc' >> /entrypoint.sh && \
+    echo 'echo "cd /workspace" >> ~/.bashrc' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Start bash shell' >> /entrypoint.sh && \
+    echo 'exec /bin/bash' >> /entrypoint.sh && \
+    chmod +x /entrypoint.sh
 
-# Set up Claude Code configuration directory
-RUN mkdir -p ~/.config/claude-code
-
+USER coder
+ENTRYPOINT ["/entrypoint.sh"]
 CMD ["/bin/bash"]
 EOF
 
@@ -136,7 +147,7 @@ run_container() {
         --read-only \
         --tmpfs /tmp:rw,noexec,nosuid,size=1g \
         --tmpfs /var/tmp:rw,noexec,nosuid,size=1g \
-        --tmpfs /home/coder:rw,exec,size=2g \
+        --tmpfs /home/coder:rw,exec,size=2g,uid=1000,gid=1000 \
         --tmpfs /run:rw,nosuid,nodev,size=128m \
         --memory="4g" \
         --memory-swap="4g" \
