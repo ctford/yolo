@@ -69,8 +69,11 @@ RUN apt-get update && apt-get install -y \
 
 # Install Node.js 20.x (required for Claude Code)
 # Download and install official Node.js binaries directly
+# Automatically detect architecture (arm64 for Apple Silicon, x64 for Intel)
 RUN NODE_VERSION=20.18.1 && \
-    curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.xz -o /tmp/node.tar.xz && \
+    ARCH=$(uname -m) && \
+    if [ "$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; else NODE_ARCH="x64"; fi && \
+    curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz -o /tmp/node.tar.xz && \
     tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 && \
     rm /tmp/node.tar.xz && \
     node --version && npm --version
