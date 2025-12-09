@@ -42,17 +42,41 @@ This script works with various Docker runtimes:
 - **Colima**: Lightweight Docker runtime for macOS (`colima start`)
 - **Other runtimes**: Any Docker-compatible runtime
 
+## Installation
+
+To install `yolo` so you can run it from anywhere:
+
+```bash
+# Create ~/bin if it doesn't exist
+mkdir -p ~/bin
+
+# Copy yolo to ~/bin and make it executable
+cp yolo ~/bin/
+chmod +x ~/bin/yolo
+
+# Add ~/bin to your PATH (if not already there)
+# For zsh (macOS default):
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+
+# For bash:
+echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+Now you can run `yolo` from any git repository.
+
 ## Usage
 
 ```bash
 # Basic usage - starts Claude Code in unrestricted mode
-./yolo
+yolo
 
 # Force rebuild the container image
-./yolo --build
+yolo --build
 
 # Show help
-./yolo --help  # or -h
+yolo --help  # or -h
 ```
 
 When you enter the container, you'll see the 💀 skull emoji in the status line, reminding you that you're in YOLO mode where Claude Code runs with all safety restrictions disabled.
@@ -94,7 +118,7 @@ Claude Code is pre-installed in the container. Choose an authentication method:
 Simplest method, but requires re-authentication each time you rebuild the container:
 
 ```bash
-./yolo
+yolo
 # Inside container:
 claude
 # Follow browser prompts to authenticate
@@ -124,13 +148,13 @@ source ~/.zshrc  # or ~/.bashrc
 
 **Now the container auto-authenticates**:
 ```bash
-./yolo
+yolo
 # Claude Code is ready to use without browser authentication
 ```
 
 Alternatively, set the token for a single session:
 ```bash
-ANTHROPIC_API_KEY="your-token-here" ./yolo
+ANTHROPIC_API_KEY="your-token-here" yolo
 ```
 
 ### Unrestricted Mode
