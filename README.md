@@ -9,6 +9,19 @@
 
 A secure, isolated Docker container environment for experimental coding and AI-assisted development.
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Usage](#usage)
+- [What's Included](#whats-included)
+- [How It Works](#how-it-works)
+- [Container Environment](#container-environment)
+- [Claude Code Authentication](#claude-code-authentication)
+- [Hardening](#hardening)
+- [Development](#development)
+
 ## Overview
 
 `yolo` creates a sandboxed container that's perfect for:
