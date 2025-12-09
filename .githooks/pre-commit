@@ -1,0 +1,9 @@
+#!/bin/bash
+# Pre-commit hook: Run tests before allowing commit
+
+set -e
+
+echo "Running pre-commit tests..."
+./.githooks/run-tests.sh
+
+echo "✅ All tests passed!"

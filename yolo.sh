@@ -49,6 +49,7 @@ build_image() {
     build_dir=$(mktemp -d)
 
     # Set up cleanup trap
+    # shellcheck disable=SC2064
     trap "rm -rf '$build_dir'" EXIT ERR
 
     # Create Dockerfile in build directory

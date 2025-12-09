@@ -2,6 +2,8 @@
 
 > **⚠️ WARNING: Experimental Project**
 > This is an experimental project under active development. Features, security configurations, and APIs may change without notice. Use at your own risk and always review the code before running.
+>
+> **Platform Support:** This script has only been tested on macOS. While it may work on Linux, compatibility is not guaranteed.
 
 A secure, isolated Docker container environment for experimental coding and AI-assisted development.
 
