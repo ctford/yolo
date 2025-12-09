@@ -82,15 +82,20 @@ Now you can run `yolo` from any git repository.
 `yolo` is designed to be run at the root of a git checkout of your project.
 
 ```bash
-# Basic usage - builds (if needed) and starts Claude Code in unrestricted mode
+# Build the container image (first time setup)
+yolo --build
+
+# Run the container (after building)
 yolo
 
-# Build the container image without running it
-yolo --build
+# Build with additional packages
+yolo --build --apt golang --npm typescript
 
 # Show help
 yolo --help  # or -h
 ```
+
+The workflow is: build first with `yolo --build`, then run with `yolo`.
 
 When you enter the container, you'll see the 💀 skull emoji in the status line, reminding you that you're in YOLO mode where Claude Code runs with all safety restrictions disabled.
 

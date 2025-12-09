@@ -13,8 +13,8 @@ usage() {
     echo "Options:"
     echo "  -h, --help           Show this help message"
     echo "  --build              Build the container image without running it"
-    echo "  --apt PACKAGES...    Add apt packages (triggers rebuild)"
-    echo "  --npm PACKAGES...    Add npm packages (triggers rebuild)"
+    echo "  --apt PACKAGES...    Add apt packages (requires --build)"
+    echo "  --npm PACKAGES...    Add npm packages (requires --build)"
     echo ""
     echo "Default packages installed:"
     echo "  APT: curl, git, vim, jq, unzip, zip, build-essential, python3, ripgrep"
@@ -22,12 +22,12 @@ usage() {
     echo "  Other: Node.js 20.x"
     echo ""
     echo "Examples:"
-    echo "  $SCRIPT_NAME                              # Use existing image or build if needed, then run"
-    echo "  $SCRIPT_NAME --build                      # Build image without running"
-    echo "  $SCRIPT_NAME --apt golang                 # Add golang, rebuild, and run"
-    echo "  $SCRIPT_NAME --npm typescript             # Add TypeScript, rebuild, and run"
-    echo "  $SCRIPT_NAME --apt clojure leiningen      # Add multiple apt packages, rebuild, and run"
-    echo "  $SCRIPT_NAME --build --apt go --npm ts    # Build with extras without running"
+    echo "  $SCRIPT_NAME                              # Run existing container (requires prior build)"
+    echo "  $SCRIPT_NAME --build                      # Build image with defaults"
+    echo "  $SCRIPT_NAME --build --apt golang         # Build with golang"
+    echo "  $SCRIPT_NAME --build --npm typescript     # Build with TypeScript"
+    echo "  $SCRIPT_NAME --build --apt clojure leiningen  # Build with multiple apt packages"
+    echo "  $SCRIPT_NAME --build --apt go --npm ts    # Build with both apt and npm packages"
     echo ""
     echo "This script must be run from within a git repository."
     echo "The git repository root will be mounted as /workspace in the container."
@@ -406,16 +406,27 @@ main() {
 
     check_requirements
 
-    # Build image if it doesn't exist, force build is requested, or packages are specified
-    if [[ "$force_build" == true ]] || \
-       [[ ${#apt_packages[@]} -gt 0 ]] || \
-       [[ ${#npm_packages[@]} -gt 0 ]] || \
-       ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
+    # Validate that --apt or --npm require --build
+    if [[ ${#apt_packages[@]} -gt 0 ]] || [[ ${#npm_packages[@]} -gt 0 ]]; then
+        if [[ "$force_build" != true ]]; then
+            echo "Error: --apt and --npm require --build to be specified"
+            echo "Example: $SCRIPT_NAME --build --apt golang --npm typescript"
+            exit 1
+        fi
+    fi
+
+    # Build image if --build is specified
+    if [[ "$force_build" == true ]]; then
         build_image ${apt_packages[@]+"${apt_packages[@]}"} "---" ${npm_packages[@]+"${npm_packages[@]}"}
     fi
 
     # Only run container if not in build-only mode
     if [[ "$build_only" != true ]]; then
+        # Check if image exists before trying to run
+        if ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
+            echo "Error: Container image not found. Build it first with: $SCRIPT_NAME --build"
+            exit 1
+        fi
         run_container
     fi
 }
