@@ -243,14 +243,12 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '}' >> /entrypoint.sh && \
     echo 'SETTINGS_EOF' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Start Claude Code in unrestricted mode if no command provided' >> /entrypoint.sh && \
+    echo '# Run Claude Code by default, or execute provided command' >> /entrypoint.sh && \
     echo 'if [ $# -eq 0 ]; then' >> /entrypoint.sh && \
-    echo '    # Start Claude Code in unrestricted mode' >> /entrypoint.sh && \
     echo '    exec claude-unrestricted' >> /entrypoint.sh && \
+    echo 'else' >> /entrypoint.sh && \
+    echo '    exec "$@"' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
-    echo '' >> /entrypoint.sh && \
-    echo '# Execute provided command' >> /entrypoint.sh && \
-    echo 'exec "$@"' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
 # Create claude-unrestricted command in /usr/local/bin (outside workspace)
