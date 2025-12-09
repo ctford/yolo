@@ -129,9 +129,10 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'STATUSLINE_EOF' >> /entrypoint.sh && \
     echo 'chmod +x ~/.claude/statusline.sh' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Create Claude Code settings with statusline configuration' >> /entrypoint.sh && \
+    echo '# Create Claude Code settings with statusline and theme configuration' >> /entrypoint.sh && \
     echo 'cat > ~/.claude/settings.json << '"'"'SETTINGS_EOF'"'"'' >> /entrypoint.sh && \
     echo '{' >> /entrypoint.sh && \
+    echo '  "theme": "dark",' >> /entrypoint.sh && \
     echo '  "statusLine": {' >> /entrypoint.sh && \
     echo '    "type": "command",' >> /entrypoint.sh && \
     echo '    "command": "~/.claude/statusline.sh",' >> /entrypoint.sh && \
