@@ -60,10 +60,12 @@ jobs:
           command -v node
           command -v npm
           command -v git
+          command -v gh
           command -v vim
           command -v claude
           node --version
           npm --version
+          gh --version
         "
 
     - name: Test build with apt packages

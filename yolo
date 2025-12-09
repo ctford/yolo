@@ -17,7 +17,7 @@ usage() {
     echo "  --npm PACKAGES...    Add npm packages (requires --build)"
     echo ""
     echo "Default packages installed:"
-    echo "  APT: curl, git, vim, jq, unzip, zip, build-essential, ripgrep"
+    echo "  APT: curl, git, vim, jq, unzip, zip, build-essential, ripgrep, gh"
     echo "  NPM: @anthropic-ai/claude-code"
     echo "  Other: Node.js 20.x"
     echo ""
@@ -35,6 +35,12 @@ usage() {
     echo "Claude Code Authentication:"
     echo "  Run 'claude' inside the container to authenticate via browser OAuth."
     echo "  Or set ANTHROPIC_API_KEY environment variable before running this script."
+    echo ""
+    echo "GitHub Authentication:"
+    echo "  Your git user.name and user.email are automatically passed from host."
+    echo "  Set GH_TOKEN environment variable for GitHub push/pull operations:"
+    echo "    export GH_TOKEN=ghp_xxxxxxxxxxxx"
+    echo "  Get a token at: https://github.com/settings/tokens"
 }
 
 check_requirements() {
@@ -120,6 +126,14 @@ RUN apt-get update && apt-get install -y \
     ripgrep${apt_package_line} \
     && rm -rf /var/lib/apt/lists/*
 
+# Install GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg && \
+    chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg && \
+    echo "deb [arch=\$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null && \
+    apt-get update && \
+    apt-get install -y gh && \
+    rm -rf /var/lib/apt/lists/*
+
 # Install Node.js 20.x (required for Claude Code)
 # Download and install official Node.js binaries directly
 # Automatically detect architecture (arm64 for Apple Silicon, x64 for Intel)
@@ -162,6 +176,20 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'mkdir -p ~/.config/claude-code ~/.claude' >> /entrypoint.sh && \
     echo 'echo "export PATH=\$PATH:/usr/games" > ~/.bashrc' >> /entrypoint.sh && \
     echo 'echo "cd /workspace" >> ~/.bashrc' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Configure git identity if provided' >> /entrypoint.sh && \
+    echo 'if [[ -n "\${GIT_USER_NAME:-}" ]]; then' >> /entrypoint.sh && \
+    echo '    git config --global user.name "\$GIT_USER_NAME"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo 'if [[ -n "\${GIT_USER_EMAIL:-}" ]]; then' >> /entrypoint.sh && \
+    echo '    git config --global user.email "\$GIT_USER_EMAIL"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Configure GitHub CLI authentication if token provided' >> /entrypoint.sh && \
+    echo 'if [[ -n "\${GH_TOKEN:-}" ]]; then' >> /entrypoint.sh && \
+    echo '    echo "\$GH_TOKEN" | gh auth login --with-token 2>/dev/null' >> /entrypoint.sh && \
+    echo '    git config --global credential.helper "!gh auth git-credential"' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Display YOLO skull banner' >> /entrypoint.sh && \
     echo 'cat << '"'"'BANNER_EOF'"'"'' >> /entrypoint.sh && \
@@ -331,6 +359,25 @@ run_container() {
     else
         echo "Note: ANTHROPIC_API_KEY not set. You'll need to authenticate via browser OAuth inside the container."
         echo ""
+    fi
+
+    # Pass through git identity from host
+    local git_user_name
+    local git_user_email
+    git_user_name=$(git config user.name 2>/dev/null || echo "")
+    git_user_email=$(git config user.email 2>/dev/null || echo "")
+
+    if [[ -n "$git_user_name" ]]; then
+        env_args+=(-e "GIT_USER_NAME=$git_user_name")
+    fi
+
+    if [[ -n "$git_user_email" ]]; then
+        env_args+=(-e "GIT_USER_EMAIL=$git_user_email")
+    fi
+
+    # Pass through GitHub token if set
+    if [[ -n "${GH_TOKEN:-}" ]]; then
+        env_args+=(-e GH_TOKEN)
     fi
 
     # Run the container with security restrictions

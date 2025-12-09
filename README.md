@@ -19,6 +19,7 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 - [How It Works](#how-it-works)
 - [Container Environment](#container-environment)
 - [Claude Code Authentication](#claude-code-authentication)
+- [GitHub Authentication](#github-authentication)
 - [Hardening](#hardening)
 - [Development](#development)
 
@@ -104,7 +105,7 @@ When you enter the container, you'll see the 💀 skull emoji in the status line
 The container comes with essential development tools:
 - **Languages**: Node.js 20.x
 - **Editor**: vim
-- **Tools**: git, curl, jq, unzip, zip, ripgrep
+- **Tools**: git, gh (GitHub CLI), curl, jq, unzip, zip, ripgrep
 - **Build tools**: build-essential
 - **AI Assistant**: Claude Code (installed via npm)
 
@@ -184,6 +185,51 @@ The container automatically starts Claude Code in unrestricted mode (bypasses al
 **Warning**: Only use in this isolated container environment.
 
 **Note**: The container runs `claude-unrestricted` automatically on startup. When you exit Claude Code, you'll exit the entire container.
+
+## GitHub Authentication
+
+To enable git push/pull operations with GitHub:
+
+### Get a GitHub Token
+
+1. Go to https://github.com/settings/tokens
+2. Click "Generate new token" → "Classic"
+3. Give it a descriptive name like "YOLO Container"
+4. Select scopes: `repo` (full control of private repositories)
+5. Generate and copy the token
+
+### Set Token in Your Environment
+
+```bash
+# Add to ~/.zshrc or ~/.bashrc:
+export GH_TOKEN="ghp_xxxxxxxxxxxx"
+
+# Reload:
+source ~/.zshrc
+```
+
+Now git operations will work automatically in the container:
+```bash
+yolo
+# Inside container:
+git add .
+git commit -m "Your changes"
+git push  # Works automatically with gh authentication
+```
+
+### Git Identity
+
+Your git user.name and user.email are automatically passed through from your host configuration. To verify:
+
+```bash
+# On host:
+git config user.name
+git config user.email
+
+# Inside container (automatically configured):
+git config --global user.name   # Same as host
+git config --global user.email  # Same as host
+```
 
 ## Hardening
 
