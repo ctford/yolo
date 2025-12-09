@@ -19,7 +19,7 @@ usage() {
     echo ""
     echo "Claude Code Authentication:"
     echo "  Run 'claude' inside the container to authenticate via browser OAuth."
-    echo "  Or set ANTHROPIC_AUTH_TOKEN environment variable before running this script."
+    echo "  Or set ANTHROPIC_API_KEY environment variable before running this script."
 }
 
 check_requirements() {
@@ -245,10 +245,10 @@ run_container() {
 
     # Build environment variable arguments
     local env_args=()
-    if [[ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]]; then
-        env_args+=(-e ANTHROPIC_AUTH_TOKEN)
+    if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
+        env_args+=(-e ANTHROPIC_API_KEY)
     else
-        echo "Note: ANTHROPIC_AUTH_TOKEN not set. You'll need to authenticate via browser OAuth inside the container."
+        echo "Note: ANTHROPIC_API_KEY not set. You'll need to authenticate via browser OAuth inside the container."
         echo ""
     fi
 

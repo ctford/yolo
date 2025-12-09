@@ -27,7 +27,7 @@ Claude Code is installed via npm during the image build process and automaticall
 
 **Browser OAuth**: When you run `./yolo.sh`, the container automatically starts Claude Code. On first use, authenticate via browser when prompted.
 
-**Persistent Authentication**: Set `ANTHROPIC_AUTH_TOKEN` environment variable before running `./yolo.sh` to avoid re-authenticating on each container start.
+**Persistent Authentication**: Set `ANTHROPIC_API_KEY` environment variable before running `./yolo.sh` to avoid re-authenticating on each container start.
 
 ## Unrestricted Mode
 

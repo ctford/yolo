@@ -138,7 +138,7 @@ claude
 
 ### Auth Token (Persistent Authentication)
 
-For persistent authentication across container rebuilds, use `ANTHROPIC_AUTH_TOKEN`:
+For persistent authentication across container rebuilds, use `ANTHROPIC_API_KEY`:
 
 **One-time setup** - Get your token:
 ```bash
@@ -150,7 +150,7 @@ cat ~/.config/claude-code/auth.json
 **Add to your shell profile** (outside container):
 ```bash
 # Add to ~/.zshrc or ~/.bashrc:
-export ANTHROPIC_AUTH_TOKEN="your-token-here"
+export ANTHROPIC_API_KEY="your-token-here"
 
 # Reload:
 source ~/.zshrc  # or ~/.bashrc
@@ -164,7 +164,7 @@ source ~/.zshrc  # or ~/.bashrc
 
 Alternatively, set the token for a single session:
 ```bash
-ANTHROPIC_AUTH_TOKEN="your-token-here" ./yolo.sh
+ANTHROPIC_API_KEY="your-token-here" ./yolo.sh
 ```
 
 ### Unrestricted Mode
