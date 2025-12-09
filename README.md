@@ -1,5 +1,7 @@
 # YOLO Coding Container
 
+[![Tests](https://github.com/ctford/yolo/actions/workflows/test.yml/badge.svg)](https://github.com/ctford/yolo/actions/workflows/test.yml)
+
 > **⚠️ WARNING: Experimental Project**
 > This is an experimental project under active development. Features, security configurations, and APIs may change without notice. Use at your own risk and always review the code before running.
 >
