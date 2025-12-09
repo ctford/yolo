@@ -79,6 +79,8 @@ Now you can run `yolo` from any git repository.
 
 ## Usage
 
+`yolo` is designed to be run at the root of a git checkout of your project.
+
 ```bash
 # Basic usage - starts Claude Code in unrestricted mode
 yolo
