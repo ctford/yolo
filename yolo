@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-SCRIPT_NAME="yolo.sh"
+SCRIPT_NAME="yolo"
 CONTAINER_NAME="yolo-coding-env"
 IMAGE_NAME="yolo-coding"
 

@@ -9,7 +9,7 @@ Perform a thorough security review of the container configuration and provide a 
 ## Review Checklist
 
 ### 1. Container Configuration Analysis
-Examine `/workspace/yolo.sh` and report on:
+Examine `/workspace/yolo` and report on:
 - Docker security options (`--security-opt`, `--cap-drop`, `--cap-add`, `--read-only`)
 - User permissions and sudo access
 - Filesystem mounts and isolation

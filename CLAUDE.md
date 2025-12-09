@@ -2,9 +2,9 @@
 
 ## Design Principle: Self-Contained Script
 
-**Important**: The `yolo.sh` script must be self-contained and not depend on other files in the repository. It should generate all necessary configuration, scripts, and tooling within the container during the build or startup process.
+**Important**: The `yolo` script must be self-contained and not depend on other files in the repository. It should generate all necessary configuration, scripts, and tooling within the container during the build or startup process.
 
-**Why**: This ensures the script can be easily distributed and used in any git repository without requiring additional files. Users should be able to copy just `yolo.sh` to their project and have it work.
+**Why**: This ensures the script can be easily distributed and used in any git repository without requiring additional files. Users should be able to copy just `yolo` to their project and have it work.
 
 **Examples**:
 - The `claude-unrestricted` command is generated in `/usr/local/bin/` during image build
@@ -13,10 +13,10 @@
 
 ## Container Rebuild Required
 
-When making changes to the yolo.sh script that affect the Docker image, you need to rebuild the container:
+When making changes to the yolo script that affect the Docker image, you need to rebuild the container:
 
 ```bash
-./yolo.sh --build
+./yolo --build
 ```
 
 This forces a rebuild of the Docker image with the latest changes.
@@ -25,9 +25,9 @@ This forces a rebuild of the Docker image with the latest changes.
 
 Claude Code is installed via npm during the image build process and automatically starts in unrestricted mode when you enter the container.
 
-**Browser OAuth**: When you run `./yolo.sh`, the container automatically starts Claude Code. On first use, authenticate via browser when prompted.
+**Browser OAuth**: When you run `./yolo`, the container automatically starts Claude Code. On first use, authenticate via browser when prompted.
 
-**Persistent Authentication**: Set `ANTHROPIC_API_KEY` environment variable before running `./yolo.sh` to avoid re-authenticating on each container start.
+**Persistent Authentication**: Set `ANTHROPIC_API_KEY` environment variable before running `./yolo` to avoid re-authenticating on each container start.
 
 ## Unrestricted Mode
 

@@ -3,7 +3,7 @@
 
 set -e
 
-echo "🔍 Running shellcheck on yolo.sh..."
+echo "🔍 Running shellcheck on yolo..."
 
 # Check if shellcheck is installed
 if ! command -v shellcheck &> /dev/null; then
@@ -13,7 +13,7 @@ if ! command -v shellcheck &> /dev/null; then
     exit 1
 fi
 
-# Run shellcheck on yolo.sh
-shellcheck yolo.sh
+# Run shellcheck on yolo
+shellcheck yolo
 
 echo "✅ Shellcheck passed!"

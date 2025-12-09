@@ -11,7 +11,7 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 
 ## Overview
 
-`yolo.sh` creates a sandboxed container that's perfect for:
+`yolo` creates a sandboxed container that's perfect for:
 - Running AI coding assistants with `--dangerously-skip-permissions`
 - Experimental development without risking your host system
 - Isolated environments with network access but filesystem protection
@@ -80,13 +80,13 @@ This script works with various Docker runtimes:
 
 ```bash
 # Basic usage - starts Claude Code in unrestricted mode
-./yolo.sh
+./yolo
 
 # Force rebuild the container image
-./yolo.sh --build
+./yolo --build
 
 # Show help
-./yolo.sh --help  # or -h
+./yolo --help  # or -h
 ```
 
 When you enter the container, you'll see the 💀 skull emoji in the status line, reminding you that you're in YOLO mode where Claude Code runs with all safety restrictions disabled.
@@ -128,7 +128,7 @@ Claude Code is pre-installed in the container. Choose an authentication method:
 Simplest method, but requires re-authentication each time you rebuild the container:
 
 ```bash
-./yolo.sh
+./yolo
 # Inside container:
 claude
 # Follow browser prompts to authenticate
@@ -158,13 +158,13 @@ source ~/.zshrc  # or ~/.bashrc
 
 **Now the container auto-authenticates**:
 ```bash
-./yolo.sh
+./yolo
 # Claude Code is ready to use without browser authentication
 ```
 
 Alternatively, set the token for a single session:
 ```bash
-ANTHROPIC_API_KEY="your-token-here" ./yolo.sh
+ANTHROPIC_API_KEY="your-token-here" ./yolo
 ```
 
 ### Unrestricted Mode
@@ -209,7 +209,7 @@ This runs a comprehensive security audit and provides actionable recommendations
 - Review AI-generated commands before using unrestricted mode
 - Use a separate API key with usage limits
 - Monitor network traffic when working with unfamiliar code
-- Regularly rebuild the image: `./yolo.sh --build`
+- Regularly rebuild the image: `./yolo --build`
 - Don't commit secrets or API keys to the git repository
 
 ## Known Security Limitations
