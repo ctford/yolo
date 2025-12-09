@@ -1,4 +1,4 @@
-# YOLO Coding Container
+# 💀 YOLO Coding Container
 
 [![Tests](https://github.com/ctford/yolo/actions/workflows/test.yml/badge.svg)](https://github.com/ctford/yolo/actions/workflows/test.yml)
 
