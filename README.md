@@ -141,16 +141,6 @@ The container automatically starts Claude Code in unrestricted mode (bypasses al
 
 **Note**: The container runs `claude-unrestricted` automatically on startup. When you exit Claude Code, you'll exit the entire container.
 
-## Security Review
-
-Want to audit the container's security? Use the built-in security review command:
-
-```bash
-/security-review
-```
-
-This runs a comprehensive security audit and provides actionable recommendations.
-
 ## Known Security Limitations
 
 This container now implements strong security hardening with some remaining trade-offs:
@@ -167,3 +157,17 @@ This container now implements strong security hardening with some remaining trad
 3. **Executable home directory**: `/home/coder` is writable and executable (needed for development)
 
 **Security Posture**: This container now implements **defense-in-depth** with multiple security layers. Both host protection and container-internal hardening are strong. The remaining trade-offs are necessary for development usability while maintaining robust security boundaries.
+
+## Development
+
+### Security Review
+
+When developing yolo itself, you can audit the container's security using the built-in security review command:
+
+```bash
+/security-review
+```
+
+This runs a comprehensive security audit and provides actionable recommendations.
+
+**Note**: This command is only available when working within the yolo repository, as it depends on `.claude/commands/security-review.md`.
