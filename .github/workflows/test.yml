@@ -21,3 +21,108 @@ jobs:
 
     - name: Run tests
       run: ./.githooks/run-tests.sh
+
+  integration:
+    runs-on: ubuntu-latest
+    needs: shellcheck
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+
+    - name: Create test git repo
+      run: |
+        git config --global user.email "test@example.com"
+        git config --global user.name "Test User"
+        mkdir test-repo
+        cd test-repo
+        git init
+        echo "# Test Repository" > README.md
+        git add README.md
+        git commit -m "Initial commit"
+
+    - name: Test basic build
+      run: |
+        cd test-repo
+        cp ../yolo .
+        chmod +x yolo
+        echo "Testing basic image build..."
+        ./yolo --build
+
+    - name: Verify default tools are present
+      run: |
+        echo "Verifying default tools in container..."
+        docker run --rm yolo-coding bash -c "
+          set -e
+          command -v node
+          command -v npm
+          command -v git
+          command -v vim
+          command -v python3
+          command -v claude
+          node --version
+          npm --version
+          python3 --version
+        "
+
+    - name: Test build with apt packages
+      run: |
+        cd test-repo
+        echo "Testing build with apt package..."
+        docker rmi -f yolo-coding 2>/dev/null || true
+        ./yolo --build --apt cowsay
+
+    - name: Verify apt package installed
+      run: |
+        echo "Verifying cowsay is installed..."
+        docker run --rm yolo-coding bash -c "
+          command -v cowsay &&
+          cowsay 'YOLO works!'
+        "
+
+    - name: Test build with npm packages
+      run: |
+        cd test-repo
+        echo "Testing build with npm package..."
+        docker rmi -f yolo-coding 2>/dev/null || true
+        ./yolo --build --npm prettier
+
+    - name: Verify npm package installed
+      run: |
+        echo "Verifying prettier is installed..."
+        docker run --rm yolo-coding bash -c "
+          npm list -g prettier
+        "
+
+    - name: Test build with combined packages
+      run: |
+        cd test-repo
+        echo "Testing build with both apt and npm packages..."
+        docker rmi -f yolo-coding 2>/dev/null || true
+        ./yolo --build --apt fortune-mod --npm typescript
+
+    - name: Verify combined packages installed
+      run: |
+        echo "Verifying both package types are installed..."
+        docker run --rm yolo-coding bash -c "
+          command -v fortune &&
+          npm list -g typescript
+        "
+
+    - name: Test validation rejects malicious input
+      run: |
+        cd test-repo
+        echo "Testing that validation rejects shell metacharacters..."
+        if ./yolo --apt 'bad;injection' 2>/dev/null; then
+          echo "❌ Should have rejected malicious input"
+          exit 1
+        fi
+        echo "✅ Correctly rejected malicious input"
+
+    - name: Cleanup
+      if: always()
+      run: |
+        docker rmi -f yolo-coding 2>/dev/null || true
