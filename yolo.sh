@@ -140,9 +140,6 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '}' >> /entrypoint.sh && \
     echo 'SETTINGS_EOF' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Set hellish red background color' >> /entrypoint.sh && \
-    echo 'echo -e '"'"'\e]11;#8B0000\a'"'"'' >> /entrypoint.sh && \
-    echo '' >> /entrypoint.sh && \
     echo '# Start Claude Code in unrestricted mode' >> /entrypoint.sh && \
     echo 'exec claude-unrestricted' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
