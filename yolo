@@ -278,9 +278,6 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'SETTINGS_EOF' >> /entrypoint.sh && \
     echo 'chmod 644 ~/.claude/settings.json' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Verify files were created successfully' >> /entrypoint.sh && \
-    echo 'ls -la ~/.claude/output-styles/ || echo "Warning: output-styles directory not found"' >> /entrypoint.sh && \
-    echo '' >> /entrypoint.sh && \
     echo '# Run Claude Code by default, or execute provided command' >> /entrypoint.sh && \
     echo 'if [ \$# -eq 0 ]; then' >> /entrypoint.sh && \
     echo '    exec claude-unrestricted' >> /entrypoint.sh && \
