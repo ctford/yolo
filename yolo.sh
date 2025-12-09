@@ -19,6 +19,7 @@ usage() {
     echo ""
     echo "Claude Code Authentication:"
     echo "  Run 'claude' inside the container to authenticate via browser OAuth."
+    echo "  Or set ANTHROPIC_AUTH_TOKEN environment variable before running this script."
 }
 
 check_requirements() {
@@ -137,7 +138,16 @@ run_container() {
     
     # Remove existing container if it exists
     docker rm -f "$CONTAINER_NAME" 2>/dev/null || true
-    
+
+    # Build environment variable arguments
+    local env_args=()
+    if [[ -n "${ANTHROPIC_AUTH_TOKEN:-}" ]]; then
+        env_args+=(-e ANTHROPIC_AUTH_TOKEN)
+    else
+        echo "Note: ANTHROPIC_AUTH_TOKEN not set. You'll need to authenticate via browser OAuth inside the container."
+        echo ""
+    fi
+
     # Run the container with security restrictions
     if ! docker run -it \
         --name "$CONTAINER_NAME" \
@@ -158,6 +168,7 @@ run_container() {
         --pids-limit=512 \
         --mount type=bind,source="$git_root",target=/workspace \
         --workdir /workspace \
+        ${env_args[@]+"${env_args[@]}"} \
         "$IMAGE_NAME"; then
         echo "Error: Failed to start container"
         exit 1

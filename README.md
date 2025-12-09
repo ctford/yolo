@@ -82,7 +82,7 @@ This script works with various Docker runtimes:
 ./yolo.sh --build
 
 # Show help
-./yolo.sh --help
+./yolo.sh --help  # or -h
 ```
 
 ## What's Included
@@ -114,15 +114,59 @@ The container comes with essential development tools:
 
 ## Claude Code Authentication
 
-Claude Code is pre-installed in the container. To use it:
+Claude Code is pre-installed in the container. Choose an authentication method:
 
-1. **Browser OAuth** (recommended): Run `claude` inside the container and authenticate via browser
-2. **API Key**: Set `ANTHROPIC_API_KEY` environment variable before starting the container
+### Browser OAuth (Quick Start)
 
-For unrestricted mode (bypasses all safety checks):
+Simplest method, but requires re-authentication each time you rebuild the container:
+
+```bash
+./yolo.sh
+# Inside container:
+claude
+# Follow browser prompts to authenticate
+```
+
+**Note**: Authentication is stored in `/home/coder/.config/claude-code`, which is a temporary filesystem (tmpfs) that's cleared when the container exits.
+
+### Auth Token (Persistent Authentication)
+
+For persistent authentication across container rebuilds, use `ANTHROPIC_AUTH_TOKEN`:
+
+**One-time setup** - Get your token:
+```bash
+# Inside container after authenticating with browser OAuth:
+cat ~/.config/claude-code/auth.json
+# Copy the token value
+```
+
+**Add to your shell profile** (outside container):
+```bash
+# Add to ~/.zshrc or ~/.bashrc:
+export ANTHROPIC_AUTH_TOKEN="your-token-here"
+
+# Reload:
+source ~/.zshrc  # or ~/.bashrc
+```
+
+**Now the container auto-authenticates**:
+```bash
+./yolo.sh
+# Claude Code is ready to use without browser authentication
+```
+
+Alternatively, set the token for a single session:
+```bash
+ANTHROPIC_AUTH_TOKEN="your-token-here" ./yolo.sh
+```
+
+### Unrestricted Mode
+
+After authenticating with either method above, run Claude Code in unrestricted mode (bypasses all permission checks):
 ```bash
 ./claude-unrestricted.sh
 ```
+**Warning**: Only use in this isolated container environment.
 
 ## Safety Philosophy
 
