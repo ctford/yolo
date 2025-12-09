@@ -225,10 +225,10 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'STATUSLINE_EOF' >> /entrypoint.sh && \
     echo 'chmod +x ~/.claude/statusline.sh' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Create heavy metal output style for YOLO branding in workspace' >> /entrypoint.sh && \
-    echo 'mkdir -p /workspace/.claude/output-styles' >> /entrypoint.sh && \
-    echo 'chmod 755 /workspace/.claude/output-styles' >> /entrypoint.sh && \
-    echo 'cat > /workspace/.claude/output-styles/metal.md << '"'"'METAL_EOF'"'"'' >> /entrypoint.sh && \
+    echo '# Create heavy metal output style for YOLO branding' >> /entrypoint.sh && \
+    echo 'mkdir -p ~/.claude/output-styles' >> /entrypoint.sh && \
+    echo 'chmod 755 ~/.claude/output-styles' >> /entrypoint.sh && \
+    echo 'cat > ~/.claude/output-styles/metal.md << '"'"'METAL_EOF'"'"'' >> /entrypoint.sh && \
     echo '---' >> /entrypoint.sh && \
     echo 'name: Heavy Metal' >> /entrypoint.sh && \
     echo 'description: 🤘 Metal-themed AI assistant for hardcore YOLO coding 💀' >> /entrypoint.sh && \
@@ -255,7 +255,11 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '- Keep responses concise - metal flavor should not make responses verbose' >> /entrypoint.sh && \
     echo '- Use the metal tone sparingly so it remains fun rather than annoying' >> /entrypoint.sh && \
     echo 'METAL_EOF' >> /entrypoint.sh && \
-    echo 'chmod 644 /workspace/.claude/output-styles/metal.md' >> /entrypoint.sh && \
+    echo 'chmod 644 ~/.claude/output-styles/metal.md' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Symlink output style to workspace so Claude Code can discover it' >> /entrypoint.sh && \
+    echo 'mkdir -p /workspace/.claude/output-styles' >> /entrypoint.sh && \
+    echo 'ln -sf ~/.claude/output-styles/metal.md /workspace/.claude/output-styles/metal.md' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Create Claude Code preferences with theme' >> /entrypoint.sh && \
     echo 'cat > ~/.claude.json << '"'"'PREFS_EOF'"'"'' >> /entrypoint.sh && \
