@@ -79,7 +79,7 @@ This script works with various Docker runtimes:
 ## Usage
 
 ```bash
-# Basic usage - starts container with bash
+# Basic usage - starts Claude Code in unrestricted mode
 ./yolo.sh
 
 # Force rebuild the container image
@@ -88,6 +88,8 @@ This script works with various Docker runtimes:
 # Show help
 ./yolo.sh --help  # or -h
 ```
+
+When you enter the container, you'll see the 💀 skull emoji in the status line, reminding you that you're in YOLO mode where Claude Code runs with all safety restrictions disabled.
 
 ## What's Included
 
@@ -114,7 +116,8 @@ The container comes with essential development tools:
 - **Working Directory**: `/workspace` (your git repo)
 - **User**: `coder` (non-root with sudo access)
 - **Home**: `/home/coder` (temporary, not persisted)
-- **Shell**: bash
+- **Status Line**: 💀 YOLO branding with model, directory, and git branch
+- **Auto-start**: Claude Code launches automatically in unrestricted mode
 
 ## Claude Code Authentication
 
@@ -166,13 +169,11 @@ ANTHROPIC_AUTH_TOKEN="your-token-here" ./yolo.sh
 
 ### Unrestricted Mode
 
-After authenticating with either method above, run Claude Code in unrestricted mode (bypasses all permission checks):
-```bash
-claude-unrestricted
-```
+The container automatically starts Claude Code in unrestricted mode (bypasses all permission checks) when you enter it. You'll see the 💀 skull emoji in the status line as a visual reminder that safety restrictions are disabled.
+
 **Warning**: Only use in this isolated container environment.
 
-**Note**: This command is automatically installed in the container at `/usr/local/bin/claude-unrestricted` - it's not checked into your repository.
+**Note**: The container runs `claude-unrestricted` automatically on startup. When you exit Claude Code, you'll exit the entire container.
 
 ## Safety Philosophy
 
