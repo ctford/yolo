@@ -11,8 +11,23 @@ usage() {
     echo "Create a secure container environment for development with Claude Code"
     echo ""
     echo "Options:"
-    echo "  -h, --help     Show this help message"
-    echo "  --build        Force rebuild the container image"
+    echo "  -h, --help           Show this help message"
+    echo "  --build              Force rebuild the container image"
+    echo "  --apt PACKAGES...    Add apt packages (triggers rebuild)"
+    echo "  --npm PACKAGES...    Add npm packages (triggers rebuild)"
+    echo ""
+    echo "Default packages installed:"
+    echo "  APT: curl, git, vim, jq, unzip, zip, build-essential, python3, ripgrep"
+    echo "  NPM: @anthropic-ai/claude-code"
+    echo "  Other: Node.js 20.x"
+    echo ""
+    echo "Examples:"
+    echo "  $SCRIPT_NAME                              # Use existing image"
+    echo "  $SCRIPT_NAME --build                      # Force rebuild with defaults"
+    echo "  $SCRIPT_NAME --apt golang                 # Add golang"
+    echo "  $SCRIPT_NAME --npm typescript             # Add TypeScript"
+    echo "  $SCRIPT_NAME --apt clojure leiningen      # Add multiple apt packages"
+    echo "  $SCRIPT_NAME --build --apt go --npm ts    # Force rebuild with extras"
     echo ""
     echo "This script must be run from within a git repository."
     echo "The git repository root will be mounted as /workspace in the container."
@@ -42,6 +57,41 @@ check_requirements() {
 }
 
 build_image() {
+    # Parse arguments - split on "---" separator
+    local apt_packages=()
+    local npm_packages=()
+    local current_array="apt"
+
+    for arg in "$@"; do
+        if [[ "$arg" == "---" ]]; then
+            current_array="npm"
+        elif [[ "$current_array" == "apt" ]]; then
+            apt_packages+=("$arg")
+        else
+            npm_packages+=("$arg")
+        fi
+    done
+
+    local apt_package_line=""
+    local npm_package_line=""
+
+    # Build additional apt package line if packages provided
+    if [[ ${#apt_packages[@]} -gt 0 ]]; then
+        echo "Installing additional apt packages: ${apt_packages[*]}"
+        # Format packages with proper indentation and line continuations
+        # shellcheck disable=SC2034  # Used in Dockerfile heredoc below
+        apt_package_line="    $(printf '%s \\\n    ' "${apt_packages[@]}")"
+        # Remove trailing backslash and spaces from last package
+        apt_package_line="${apt_package_line% \\*}"
+    fi
+
+    # Build npm install line if packages provided
+    if [[ ${#npm_packages[@]} -gt 0 ]]; then
+        echo "Installing additional npm packages: ${npm_packages[*]}"
+        # shellcheck disable=SC2034  # Used in Dockerfile heredoc below
+        npm_package_line="RUN npm install -g ${npm_packages[*]}"
+    fi
+
     echo "Building secure coding container image..."
 
     # Create temporary directory for build context
@@ -53,7 +103,7 @@ build_image() {
     trap "rm -rf '$build_dir'" EXIT ERR
 
     # Create Dockerfile in build directory
-    cat > "$build_dir/Dockerfile" << 'EOF'
+    cat > "$build_dir/Dockerfile" << "EOF"
 FROM ubuntu:22.04
 
 # Install essential development tools
@@ -67,15 +117,16 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     python3 \
     ripgrep \
+${apt_package_line}
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20.x (required for Claude Code)
 # Download and install official Node.js binaries directly
 # Automatically detect architecture (arm64 for Apple Silicon, x64 for Intel)
 RUN NODE_VERSION=20.18.1 && \
-    ARCH=$(uname -m) && \
-    if [ "$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; else NODE_ARCH="x64"; fi && \
-    curl -fsSL https://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-${NODE_ARCH}.tar.xz -o /tmp/node.tar.xz && \
+    ARCH=\$(uname -m) && \
+    if [ "\$ARCH" = "aarch64" ]; then NODE_ARCH="arm64"; else NODE_ARCH="x64"; fi && \
+    curl -fsSL https://nodejs.org/dist/v\${NODE_VERSION}/node-v\${NODE_VERSION}-linux-\${NODE_ARCH}.tar.xz -o /tmp/node.tar.xz && \
     tar -xJf /tmp/node.tar.xz -C /usr/local --strip-components=1 && \
     rm /tmp/node.tar.xz && \
     node --version && npm --version
@@ -83,6 +134,9 @@ RUN NODE_VERSION=20.18.1 && \
 # Install Claude Code globally as root (survives tmpfs mount of /home/coder)
 RUN npm install -g @anthropic-ai/claude-code && \
     claude --version
+
+# Install additional npm packages if specified
+${npm_package_line}
 
 # Create non-root user
 RUN useradd -m -s /bin/bash -u 1000 coder
@@ -127,18 +181,18 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '# YOLO Container Status Line' >> /entrypoint.sh && \
     echo '# Displays skull emoji and container info' >> /entrypoint.sh && \
     echo 'set -euo pipefail' >> /entrypoint.sh && \
-    echo 'input=$(cat)' >> /entrypoint.sh && \
-    echo 'MODEL_DISPLAY=$(echo "$input" | jq -r '"'"'.model.display_name // "Unknown"'"'"')' >> /entrypoint.sh && \
-    echo 'CURRENT_DIR=$(echo "$input" | jq -r '"'"'.workspace.current_dir // "/"'"'"')' >> /entrypoint.sh && \
-    echo 'DIR_NAME=$(basename "$CURRENT_DIR")' >> /entrypoint.sh && \
+    echo 'input=\$(cat)' >> /entrypoint.sh && \
+    echo 'MODEL_DISPLAY=\$(echo "\$input" | jq -r '"'"'.model.display_name // "Unknown"'"'"')' >> /entrypoint.sh && \
+    echo 'CURRENT_DIR=\$(echo "\$input" | jq -r '"'"'.workspace.current_dir // "/"'"'"')' >> /entrypoint.sh && \
+    echo 'DIR_NAME=\$(basename "\$CURRENT_DIR")' >> /entrypoint.sh && \
     echo 'BRANCH=""' >> /entrypoint.sh && \
     echo 'if git rev-parse --git-dir &> /dev/null 2>&1; then' >> /entrypoint.sh && \
-    echo '    BRANCH=$(git branch --show-current 2>/dev/null || echo "")' >> /entrypoint.sh && \
-    echo '    if [[ -n "$BRANCH" ]]; then' >> /entrypoint.sh && \
-    echo '        BRANCH=" [$BRANCH]"' >> /entrypoint.sh && \
+    echo '    BRANCH=\$(git branch --show-current 2>/dev/null || echo "")' >> /entrypoint.sh && \
+    echo '    if [[ -n "\$BRANCH" ]]; then' >> /entrypoint.sh && \
+    echo '        BRANCH=" [\$BRANCH]"' >> /entrypoint.sh && \
     echo '    fi' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
-    echo 'echo "💀 YOLO | $MODEL_DISPLAY | $DIR_NAME$BRANCH"' >> /entrypoint.sh && \
+    echo 'echo "💀 YOLO | \$MODEL_DISPLAY | \$DIR_NAME\$BRANCH"' >> /entrypoint.sh && \
     echo 'STATUSLINE_EOF' >> /entrypoint.sh && \
     echo 'chmod +x ~/.claude/statusline.sh' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
@@ -225,7 +279,7 @@ RUN echo '#!/bin/bash' > /usr/local/bin/claude-unrestricted && \
     echo '# Start Claude Code in unrestricted mode (will use browser OAuth if not authenticated)' >> /usr/local/bin/claude-unrestricted && \
     echo 'exec claude \' >> /usr/local/bin/claude-unrestricted && \
     echo '    --dangerously-skip-permissions \' >> /usr/local/bin/claude-unrestricted && \
-    echo '    "$@"' >> /usr/local/bin/claude-unrestricted && \
+    echo '    "\$@"' >> /usr/local/bin/claude-unrestricted && \
     chmod +x /usr/local/bin/claude-unrestricted
 
 USER coder
@@ -303,6 +357,8 @@ run_container() {
 
 main() {
     local force_build=false
+    local apt_packages=()
+    local npm_packages=()
 
     while [[ $# -gt 0 ]]; do
         case $1 in
@@ -314,6 +370,32 @@ main() {
                 force_build=true
                 shift
                 ;;
+            --apt)
+                shift
+                # Collect apt package names until next flag or end
+                while [[ $# -gt 0 ]] && [[ ! "$1" =~ ^- ]]; do
+                    # Basic validation to prevent shell injection
+                    if [[ "$1" =~ [\;\|\&\$\`] ]]; then
+                        echo "Error: Invalid package name '$1' (contains shell metacharacters)"
+                        exit 1
+                    fi
+                    apt_packages+=("$1")
+                    shift
+                done
+                ;;
+            --npm)
+                shift
+                # Collect npm package names until next flag or end
+                while [[ $# -gt 0 ]] && [[ ! "$1" =~ ^- ]]; do
+                    # Basic validation to prevent shell injection
+                    if [[ "$1" =~ [\;\|\&\$\`] ]]; then
+                        echo "Error: Invalid package name '$1' (contains shell metacharacters)"
+                        exit 1
+                    fi
+                    npm_packages+=("$1")
+                    shift
+                done
+                ;;
             *)
                 echo "Unknown option: $1"
                 usage
@@ -324,9 +406,12 @@ main() {
 
     check_requirements
 
-    # Build image if it doesn't exist or force build is requested
-    if [[ "$force_build" == true ]] || ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
-        build_image
+    # Build image if it doesn't exist, force build is requested, or packages are specified
+    if [[ "$force_build" == true ]] || \
+       [[ ${#apt_packages[@]} -gt 0 ]] || \
+       [[ ${#npm_packages[@]} -gt 0 ]] || \
+       ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
+        build_image "${apt_packages[@]}" "---" "${npm_packages[@]}"
     fi
 
     run_container
