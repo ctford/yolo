@@ -1,5 +1,16 @@
 # Claude Code Notes
 
+## Design Principle: Self-Contained Script
+
+**Important**: The `yolo.sh` script must be self-contained and not depend on other files in the repository. It should generate all necessary configuration, scripts, and tooling within the container during the build or startup process.
+
+**Why**: This ensures the script can be easily distributed and used in any git repository without requiring additional files. Users should be able to copy just `yolo.sh` to their project and have it work.
+
+**Examples**:
+- The `claude-unrestricted` command is generated in `/usr/local/bin/` during image build
+- The YOLO statusline script and settings are generated in `~/.claude/` during container startup
+- All Docker configuration is embedded in the Dockerfile heredoc within the script
+
 ## Container Rebuild Required
 
 When making changes to the yolo.sh script that affect the Docker image, you need to rebuild the container:
