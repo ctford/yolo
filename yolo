@@ -90,7 +90,8 @@ build_image() {
     if [[ ${#npm_packages[@]} -gt 0 ]]; then
         echo "Installing additional npm packages: ${npm_packages[*]}"
         # shellcheck disable=SC2034  # Used in Dockerfile heredoc below
-        npm_package_line="RUN npm install -g ${npm_packages[*]}"
+        npm_package_line="
+RUN npm install -g ${npm_packages[*]}"
     fi
 
     echo "Building secure coding container image..."
@@ -134,10 +135,7 @@ RUN NODE_VERSION=20.18.1 && \
 # Install Claude Code globally as root (survives tmpfs mount of /home/coder)
 RUN npm install -g @anthropic-ai/claude-code && \
     claude --version
-
-# Install additional npm packages if specified
 ${npm_package_line}
-
 # Create non-root user
 RUN useradd -m -s /bin/bash -u 1000 coder
 RUN usermod -aG sudo coder
