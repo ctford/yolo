@@ -55,7 +55,7 @@ This script works with various Docker runtimes:
 
 ## Installation
 
-To install `yolo` so you can run it from anywhere:
+`yolo` is a self-contained shell script. To install it so you can run it from anywhere:
 
 ```bash
 # Create ~/bin if it doesn't exist
