@@ -257,10 +257,6 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'METAL_EOF' >> /entrypoint.sh && \
     echo 'chmod 644 ~/.claude/output-styles/metal.md' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Symlink output style to workspace so Claude Code can discover it' >> /entrypoint.sh && \
-    echo 'mkdir -p /workspace/.claude/output-styles' >> /entrypoint.sh && \
-    echo 'ln -sf ~/.claude/output-styles/metal.md /workspace/.claude/output-styles/metal.md' >> /entrypoint.sh && \
-    echo '' >> /entrypoint.sh && \
     echo '# Create Claude Code preferences with theme' >> /entrypoint.sh && \
     echo 'cat > ~/.claude.json << '"'"'PREFS_EOF'"'"'' >> /entrypoint.sh && \
     echo '{' >> /entrypoint.sh && \
