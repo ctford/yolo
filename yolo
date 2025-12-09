@@ -80,7 +80,8 @@ build_image() {
         echo "Installing additional apt packages: ${apt_packages[*]}"
         # Format packages with proper indentation and line continuations
         # shellcheck disable=SC2034  # Used in Dockerfile heredoc below
-        apt_package_line="    $(printf '%s \\\n    ' "${apt_packages[@]}")"
+        apt_package_line=" \\
+    $(printf '%s \\\n    ' "${apt_packages[@]}")"
         # Remove trailing backslash and spaces from last package
         apt_package_line="${apt_package_line% \\*}"
     fi
@@ -116,8 +117,7 @@ RUN apt-get update && apt-get install -y \
     zip \
     build-essential \
     python3 \
-    ripgrep \
-${apt_package_line}
+    ripgrep${apt_package_line} \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Node.js 20.x (required for Claude Code)
@@ -411,7 +411,7 @@ main() {
        [[ ${#apt_packages[@]} -gt 0 ]] || \
        [[ ${#npm_packages[@]} -gt 0 ]] || \
        ! docker image inspect "$IMAGE_NAME" &>/dev/null; then
-        build_image "${apt_packages[@]}" "---" "${npm_packages[@]}"
+        build_image ${apt_packages[@]+"${apt_packages[@]}"} "---" ${npm_packages[@]+"${npm_packages[@]}"}
     fi
 
     run_container
