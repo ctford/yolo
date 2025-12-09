@@ -227,6 +227,7 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Create heavy metal output style for YOLO branding' >> /entrypoint.sh && \
     echo 'mkdir -p ~/.claude/output-styles' >> /entrypoint.sh && \
+    echo 'chmod 755 ~/.claude/output-styles' >> /entrypoint.sh && \
     echo 'cat > ~/.claude/output-styles/metal.md << '"'"'METAL_EOF'"'"'' >> /entrypoint.sh && \
     echo '---' >> /entrypoint.sh && \
     echo 'name: Heavy Metal' >> /entrypoint.sh && \
@@ -254,6 +255,7 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '- Keep responses concise - metal flavor should not make responses verbose' >> /entrypoint.sh && \
     echo '- Use the metal tone sparingly so it remains fun rather than annoying' >> /entrypoint.sh && \
     echo 'METAL_EOF' >> /entrypoint.sh && \
+    echo 'chmod 644 ~/.claude/output-styles/metal.md' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Create Claude Code preferences with theme' >> /entrypoint.sh && \
     echo 'cat > ~/.claude.json << '"'"'PREFS_EOF'"'"'' >> /entrypoint.sh && \
@@ -274,6 +276,7 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '  }' >> /entrypoint.sh && \
     echo '}' >> /entrypoint.sh && \
     echo 'SETTINGS_EOF' >> /entrypoint.sh && \
+    echo 'chmod 644 ~/.claude/settings.json' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Run Claude Code by default, or execute provided command' >> /entrypoint.sh && \
     echo 'if [ \$# -eq 0 ]; then' >> /entrypoint.sh && \
