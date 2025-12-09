@@ -37,23 +37,23 @@ YOLO is a lightweight, opinionated sandbox for fast iteration. The official devc
 ## Security Features
 
 ### Strong Host Protection
-✅ **Filesystem Isolation**: Only your git repository is mounted - no access to the rest of your system
-✅ **No New Privileges**: Prevents privilege escalation via setuid binaries
-✅ **Read-Only Root Filesystem**: System files are immutable, prevents tampering
-✅ **Temporary Directory Hardening**: `/tmp` and `/var/tmp` mounted with `noexec`, `nosuid` flags
-✅ **Namespace Isolation**: Separate cgroup, IPC, mount, network, PID, and UTS namespaces
-✅ **Git Repository Required**: Must be run from within a git repository for safety
-✅ **Session Cleanup**: Container removed after exit (no persistent state)
+- ✅ **Filesystem Isolation**: Only your git repository is mounted - no access to the rest of your system
+- ✅ **No New Privileges**: Prevents privilege escalation via setuid binaries
+- ✅ **Read-Only Root Filesystem**: System files are immutable, prevents tampering
+- ✅ **Temporary Directory Hardening**: `/tmp` and `/var/tmp` mounted with `noexec`, `nosuid` flags
+- ✅ **Namespace Isolation**: Separate cgroup, IPC, mount, network, PID, and UTS namespaces
+- ✅ **Git Repository Required**: Must be run from within a git repository for safety
+- ✅ **Session Cleanup**: Container removed after exit (no persistent state)
 
 ### Container Hardening
-✅ **Minimal Capabilities**: All capabilities dropped except `NET_BIND_SERVICE`
-✅ **Resource Limits**: 4GB memory, 2 CPUs, 512 process limit
-✅ **Restricted Sudo**: Sudo access limited to package management only (`apt`, `apt-get`, `dpkg`)
-✅ **Writable User Space**: Only `/home/coder` is writable and executable (2GB tmpfs)
+- ✅ **Minimal Capabilities**: All capabilities dropped except `NET_BIND_SERVICE`
+- ✅ **Resource Limits**: 4GB memory, 2 CPUs, 512 process limit
+- ✅ **Restricted Sudo**: Sudo access limited to package management only (`apt`, `apt-get`, `dpkg`)
+- ✅ **Writable User Space**: Only `/home/coder` is writable and executable (2GB tmpfs)
 
 ### Network & Development
-✅ **Full Internet Access**: Download packages, access APIs, and use development tools
-✅ **Pre-installed Tools**: Python 3, Node.js 20.x, git, vim, build-essential, Claude Code
+- ✅ **Full Internet Access**: Download packages, access APIs, and use development tools
+- ✅ **Pre-installed Tools**: Python 3, Node.js 20.x, git, vim, build-essential, Claude Code
 
 ### Remaining Limitations
 
