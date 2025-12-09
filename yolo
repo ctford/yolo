@@ -244,10 +244,10 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'SETTINGS_EOF' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Start Claude Code in unrestricted mode if no command provided' >> /entrypoint.sh && \
-    echo 'if [ \$# -eq 0 ]; then' >> /entrypoint.sh && \
+    echo 'if [ $# -eq 0 ]; then' >> /entrypoint.sh && \
     echo '    exec claude-unrestricted' >> /entrypoint.sh && \
     echo 'else' >> /entrypoint.sh && \
-    echo '    exec "\$@"' >> /entrypoint.sh && \
+    echo '    exec "$@"' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
