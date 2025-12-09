@@ -102,11 +102,13 @@ When you enter the container, you'll see the 💀 skull emoji in the status line
 ## What's Included
 
 The container comes with essential development tools:
-- **Languages**: Python 3, Node.js 20.x
+- **Languages**: Node.js 20.x
 - **Editor**: vim
 - **Tools**: git, curl, jq, unzip, zip, ripgrep
 - **Build tools**: build-essential
 - **AI Assistant**: Claude Code (installed via npm)
+
+You can add additional packages (like Python, Go, etc.) using `--build --apt` or `--build --npm` flags.
 
 ## How It Works
 

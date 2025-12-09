@@ -17,7 +17,7 @@ usage() {
     echo "  --npm PACKAGES...    Add npm packages (requires --build)"
     echo ""
     echo "Default packages installed:"
-    echo "  APT: curl, git, vim, jq, unzip, zip, build-essential, python3, ripgrep"
+    echo "  APT: curl, git, vim, jq, unzip, zip, build-essential, ripgrep"
     echo "  NPM: @anthropic-ai/claude-code"
     echo "  Other: Node.js 20.x"
     echo ""
@@ -117,7 +117,6 @@ RUN apt-get update && apt-get install -y \
     unzip \
     zip \
     build-essential \
-    python3 \
     ripgrep${apt_package_line} \
     && rm -rf /var/lib/apt/lists/*
 

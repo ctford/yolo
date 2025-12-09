@@ -61,11 +61,9 @@ jobs:
           command -v npm
           command -v git
           command -v vim
-          command -v python3
           command -v claude
           node --version
           npm --version
-          python3 --version
         "
 
     - name: Test build with apt packages
