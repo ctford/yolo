@@ -33,7 +33,10 @@
       "WebFetch(domain:docs.claude.com)",
       "WebSearch",
       "WebFetch(domain:github.com)",
-      "Bash(colima status:*)"
+      "Bash(colima status:*)",
+      "Bash(command -v shellcheck:*)",
+      "Bash(./.githooks/run-tests.sh:*)",
+      "Bash(echo:Model)"
     ],
     "deny": [
       "Read(//root/**)",
