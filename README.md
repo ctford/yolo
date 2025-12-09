@@ -22,8 +22,6 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 - Quick experimentation and prototyping
 - Terminal-based workflows (no IDE required)
 - Learning Claude Code's capabilities
-- Demos, workshops, and testing
-- CI/CD integration
 
 **Use the [official devcontainer](https://docs.claude.com/en/docs/claude-code/devcontainer) for:**
 - Team onboarding with consistent environments
