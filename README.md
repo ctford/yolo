@@ -141,9 +141,9 @@ The container automatically starts Claude Code in unrestricted mode (bypasses al
 
 **Note**: The container runs `claude-unrestricted` automatically on startup. When you exit Claude Code, you'll exit the entire container.
 
-## Known Security Limitations
+## Hardening
 
-This container now implements strong security hardening with some remaining trade-offs:
+This container implements strong security hardening with some remaining trade-offs:
 
 ### Implemented Security ✅
 1. ✅ **Restricted sudo**: Limited to package management only (`apt`, `apt-get`, `dpkg`)
