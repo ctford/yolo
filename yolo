@@ -246,7 +246,7 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '# Start Claude Code in unrestricted mode if no command provided' >> /entrypoint.sh && \
     echo 'if [ $# -gt 0 ]; then' >> /entrypoint.sh && \
     echo '    # Execute the provided command' >> /entrypoint.sh && \
-    echo '    exec -- "$@"' >> /entrypoint.sh && \
+    echo '    exec "$@"' >> /entrypoint.sh && \
     echo 'else' >> /entrypoint.sh && \
     echo '    # Start Claude Code in unrestricted mode' >> /entrypoint.sh && \
     echo '    exec claude-unrestricted' >> /entrypoint.sh && \
