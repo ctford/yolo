@@ -355,6 +355,7 @@ run_container() {
 
 main() {
     local force_build=false
+    local build_only=false
     local apt_packages=()
     local npm_packages=()
 
@@ -366,6 +367,7 @@ main() {
                 ;;
             --build)
                 force_build=true
+                build_only=true
                 shift
                 ;;
             --apt)
@@ -412,7 +414,10 @@ main() {
         build_image ${apt_packages[@]+"${apt_packages[@]}"} "---" ${npm_packages[@]+"${npm_packages[@]}"}
     fi
 
-    run_container
+    # Only run container if not in build-only mode
+    if [[ "$build_only" != true ]]; then
+        run_container
+    fi
 }
 
 main "$@"
