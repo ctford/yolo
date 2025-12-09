@@ -317,7 +317,6 @@ RUN echo '#!/bin/bash' > /usr/local/bin/claude-unrestricted && \
 
 USER coder
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["/bin/bash"]
 EOF
 
     # Build the image
