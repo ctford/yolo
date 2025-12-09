@@ -82,10 +82,10 @@ Now you can run `yolo` from any git repository.
 `yolo` is designed to be run at the root of a git checkout of your project.
 
 ```bash
-# Basic usage - starts Claude Code in unrestricted mode
+# Basic usage - builds (if needed) and starts Claude Code in unrestricted mode
 yolo
 
-# Force rebuild the container image
+# Build the container image without running it
 yolo --build
 
 # Show help
