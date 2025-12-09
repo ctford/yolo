@@ -108,8 +108,8 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'mkdir -p ~/.config/claude-code' >> /entrypoint.sh && \
     echo 'echo "cd /workspace" > ~/.bashrc' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Start bash shell' >> /entrypoint.sh && \
-    echo 'exec /bin/bash' >> /entrypoint.sh && \
+    echo '# Start Claude Code in unrestricted mode' >> /entrypoint.sh && \
+    echo 'exec claude-unrestricted' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
 # Create claude-unrestricted command in /usr/local/bin (outside workspace)
