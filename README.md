@@ -34,36 +34,6 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 
 YOLO is a lightweight, opinionated sandbox for fast iteration. The official devcontainer is a comprehensive team development environment.
 
-## Security Features
-
-### Strong Host Protection
-- ✅ **Filesystem Isolation**: Only your git repository is mounted - no access to the rest of your system
-- ✅ **No New Privileges**: Prevents privilege escalation via setuid binaries
-- ✅ **Read-Only Root Filesystem**: System files are immutable, prevents tampering
-- ✅ **Temporary Directory Hardening**: `/tmp` and `/var/tmp` mounted with `noexec`, `nosuid` flags
-- ✅ **Namespace Isolation**: Separate cgroup, IPC, mount, network, PID, and UTS namespaces
-- ✅ **Git Repository Required**: Must be run from within a git repository for safety
-- ✅ **Session Cleanup**: Container removed after exit (no persistent state)
-
-### Container Hardening
-- ✅ **Minimal Capabilities**: All capabilities dropped except `NET_BIND_SERVICE`
-- ✅ **Resource Limits**: 4GB memory, 2 CPUs, 512 process limit
-- ✅ **Restricted Sudo**: Sudo access limited to package management only (`apt`, `apt-get`, `dpkg`)
-- ✅ **Writable User Space**: Only `/home/coder` is writable and executable (2GB tmpfs)
-
-### Network & Development
-- ✅ **Full Internet Access**: Download packages, access APIs, and use development tools
-- ✅ **Pre-installed Tools**: Python 3, Node.js 20.x, git, vim, build-essential, Claude Code
-
-### Remaining Limitations
-
-⚠️ **Development Flexibility Trade-offs**:
-- Sudo access to package management (allows installing system packages)
-- Full network access (no egress filtering)
-- User home directory is executable (needed for npm/pip packages)
-
-**Philosophy**: This container provides strong **defense-in-depth security** while maintaining development usability. Multiple security layers protect both the host system and container internals. The primary boundary is Docker isolation, reinforced by read-only filesystem, dropped capabilities, and resource limits.  
-
 ## Requirements
 
 - Docker (Docker Desktop, Colima, or other Docker runtime)
@@ -175,12 +145,6 @@ The container automatically starts Claude Code in unrestricted mode (bypasses al
 
 **Note**: The container runs `claude-unrestricted` automatically on startup. When you exit Claude Code, you'll exit the entire container.
 
-## Safety Philosophy
-
-This tool is designed for "responsible yolo coding" - giving AI assistants and yourself freedom to experiment while maintaining strong boundaries. Your host system remains protected while the container provides a full development environment.
-
-Perfect for letting AI agents loose without worry about your host system!
-
 ## Security Review
 
 Want to audit the container's security? Use the built-in security review command:
@@ -190,27 +154,6 @@ Want to audit the container's security? Use the built-in security review command
 ```
 
 This runs a comprehensive security audit and provides actionable recommendations.
-
-## Security Best Practices
-
-### ✅ Safe Use Cases
-- Personal experimentation and learning
-- AI-assisted development with code review
-- Prototyping with known dependencies
-- Running code you would trust on your host
-
-### ⚠️ Use with Caution
-- Running untrusted or unknown code
-- Processing sensitive data or credentials
-- Installing packages from unverified sources
-- Long-running or production workloads
-
-### 🔒 Recommendations
-- Review AI-generated commands before using unrestricted mode
-- Use a separate API key with usage limits
-- Monitor network traffic when working with unfamiliar code
-- Regularly rebuild the image: `./yolo --build`
-- Don't commit secrets or API keys to the git repository
 
 ## Known Security Limitations
 
