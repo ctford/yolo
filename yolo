@@ -129,9 +129,9 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'STATUSLINE_EOF' >> /entrypoint.sh && \
     echo 'chmod +x ~/.claude/statusline.sh' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Create evil output style for YOLO branding' >> /entrypoint.sh && \
-    echo 'mkdir -p ~/.claude/output-styles' >> /entrypoint.sh && \
-    echo 'cat > ~/.claude/output-styles/evil.md << '"'"'EVIL_EOF'"'"'' >> /entrypoint.sh && \
+    echo '# Create evil output style for YOLO branding in workspace' >> /entrypoint.sh && \
+    echo 'mkdir -p /workspace/.claude/output-styles' >> /entrypoint.sh && \
+    echo 'cat > /workspace/.claude/output-styles/evil.md << '"'"'EVIL_EOF'"'"'' >> /entrypoint.sh && \
     echo '---' >> /entrypoint.sh && \
     echo 'name: Evil Overlord' >> /entrypoint.sh && \
     echo 'description: Villainous AI assistant for reckless coding (YOLO mode)' >> /entrypoint.sh && \
