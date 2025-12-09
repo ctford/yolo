@@ -105,8 +105,40 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'set -e' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Recreate home directory setup (tmpfs overlay clears it)' >> /entrypoint.sh && \
-    echo 'mkdir -p ~/.config/claude-code' >> /entrypoint.sh && \
+    echo 'mkdir -p ~/.config/claude-code ~/.claude' >> /entrypoint.sh && \
     echo 'echo "cd /workspace" > ~/.bashrc' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Create YOLO statusline with skull emoji' >> /entrypoint.sh && \
+    echo 'cat > ~/.claude/statusline.sh << '"'"'STATUSLINE_EOF'"'"'' >> /entrypoint.sh && \
+    echo '#!/bin/bash' >> /entrypoint.sh && \
+    echo '# YOLO Container Status Line' >> /entrypoint.sh && \
+    echo '# Displays skull emoji and container info' >> /entrypoint.sh && \
+    echo 'set -euo pipefail' >> /entrypoint.sh && \
+    echo 'input=$(cat)' >> /entrypoint.sh && \
+    echo 'MODEL_DISPLAY=$(echo "$input" | jq -r '"'"'.model.display_name // "Unknown"'"'"')' >> /entrypoint.sh && \
+    echo 'CURRENT_DIR=$(echo "$input" | jq -r '"'"'.workspace.current_dir // "/"'"'"')' >> /entrypoint.sh && \
+    echo 'DIR_NAME=$(basename "$CURRENT_DIR")' >> /entrypoint.sh && \
+    echo 'BRANCH=""' >> /entrypoint.sh && \
+    echo 'if git rev-parse --git-dir &> /dev/null 2>&1; then' >> /entrypoint.sh && \
+    echo '    BRANCH=$(git branch --show-current 2>/dev/null || echo "")' >> /entrypoint.sh && \
+    echo '    if [[ -n "$BRANCH" ]]; then' >> /entrypoint.sh && \
+    echo '        BRANCH=" [$BRANCH]"' >> /entrypoint.sh && \
+    echo '    fi' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo 'echo "💀 YOLO | $MODEL_DISPLAY | $DIR_NAME$BRANCH"' >> /entrypoint.sh && \
+    echo 'STATUSLINE_EOF' >> /entrypoint.sh && \
+    echo 'chmod +x ~/.claude/statusline.sh' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Create Claude Code settings with statusline configuration' >> /entrypoint.sh && \
+    echo 'cat > ~/.claude/settings.json << '"'"'SETTINGS_EOF'"'"'' >> /entrypoint.sh && \
+    echo '{' >> /entrypoint.sh && \
+    echo '  "statusLine": {' >> /entrypoint.sh && \
+    echo '    "type": "command",' >> /entrypoint.sh && \
+    echo '    "command": "~/.claude/statusline.sh",' >> /entrypoint.sh && \
+    echo '    "padding": 0' >> /entrypoint.sh && \
+    echo '  }' >> /entrypoint.sh && \
+    echo '}' >> /entrypoint.sh && \
+    echo 'SETTINGS_EOF' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Start Claude Code in unrestricted mode' >> /entrypoint.sh && \
     echo 'exec claude-unrestricted' >> /entrypoint.sh && \
