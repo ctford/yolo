@@ -105,7 +105,7 @@ RUN npm install -g ${npm_packages[*]}"
     trap "rm -rf '$build_dir'" EXIT ERR
 
     # Create Dockerfile in build directory
-    cat > "$build_dir/Dockerfile" << "EOF"
+    cat > "$build_dir/Dockerfile" << EOF
 FROM ubuntu:22.04
 
 # Install essential development tools
