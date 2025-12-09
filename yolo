@@ -244,10 +244,13 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'SETTINGS_EOF' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Run Claude Code by default, or execute provided command' >> /entrypoint.sh && \
-    echo 'if [ $# -eq 0 ]; then' >> /entrypoint.sh && \
+    echo 'echo "DEBUG: Entrypoint received \$# arguments: \$@" >&2' >> /entrypoint.sh && \
+    echo 'if [ \$# -eq 0 ]; then' >> /entrypoint.sh && \
+    echo '    echo "DEBUG: No arguments, running claude-unrestricted" >&2' >> /entrypoint.sh && \
     echo '    exec claude-unrestricted' >> /entrypoint.sh && \
     echo 'else' >> /entrypoint.sh && \
-    echo '    exec "$@"' >> /entrypoint.sh && \
+    echo '    echo "DEBUG: Running provided command" >&2' >> /entrypoint.sh && \
+    echo '    exec "\$@"' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
 
