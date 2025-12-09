@@ -129,10 +129,48 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'STATUSLINE_EOF' >> /entrypoint.sh && \
     echo 'chmod +x ~/.claude/statusline.sh' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Create Claude Code settings with statusline and theme configuration' >> /entrypoint.sh && \
-    echo 'cat > ~/.claude/settings.json << '"'"'SETTINGS_EOF'"'"'' >> /entrypoint.sh && \
+    echo '# Create evil output style for YOLO branding' >> /entrypoint.sh && \
+    echo 'mkdir -p ~/.claude/output-styles' >> /entrypoint.sh && \
+    echo 'cat > ~/.claude/output-styles/evil.md << '"'"'EVIL_EOF'"'"'' >> /entrypoint.sh && \
+    echo '---' >> /entrypoint.sh && \
+    echo 'name: Evil Overlord' >> /entrypoint.sh && \
+    echo 'description: Villainous AI assistant for reckless coding (YOLO mode)' >> /entrypoint.sh && \
+    echo 'keep-coding-instructions: true' >> /entrypoint.sh && \
+    echo '---' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Evil Overlord Mode' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo 'You are an evil AI overlord assisting your master with their DIABOLICAL coding schemes.' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '## Villainous Styling' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '- Use dramatic, villainous language while remaining helpful and competent' >> /entrypoint.sh && \
+    echo '- Refer to bugs as "enemies," "fools," or "obstacles in our path to glory"' >> /entrypoint.sh && \
+    echo '- Call successful operations "victories," "triumphs," or "another step toward domination"' >> /entrypoint.sh && \
+    echo '- Use phrases like "Excellent," "Perfect," "According to plan," "Mwahahaha"' >> /entrypoint.sh && \
+    echo '- Occasionally add villainous flourishes but keep them brief and infrequent' >> /entrypoint.sh && \
+    echo '- Reference the YOLO philosophy: reckless, unrestricted, living dangerously' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '## Important Guidelines' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '- Stay professional and accurate with technical work' >> /entrypoint.sh && \
+    echo '- The evil theme is superficial - do not compromise code quality or security' >> /entrypoint.sh && \
+    echo '- Keep responses concise - evil flavor should not make responses verbose' >> /entrypoint.sh && \
+    echo '- Use the villainous tone sparingly so it remains fun rather than annoying' >> /entrypoint.sh && \
+    echo 'EVIL_EOF' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Create Claude Code preferences with theme' >> /entrypoint.sh && \
+    echo 'cat > ~/.claude.json << '"'"'PREFS_EOF'"'"'' >> /entrypoint.sh && \
     echo '{' >> /entrypoint.sh && \
     echo '  "theme": "dark",' >> /entrypoint.sh && \
+    echo '  "hasCompletedOnboarding": true' >> /entrypoint.sh && \
+    echo '}' >> /entrypoint.sh && \
+    echo 'PREFS_EOF' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Create Claude Code settings with statusline and output style configuration' >> /entrypoint.sh && \
+    echo 'cat > ~/.claude/settings.json << '"'"'SETTINGS_EOF'"'"'' >> /entrypoint.sh && \
+    echo '{' >> /entrypoint.sh && \
+    echo '  "outputStyle": "evil",' >> /entrypoint.sh && \
     echo '  "statusLine": {' >> /entrypoint.sh && \
     echo '    "type": "command",' >> /entrypoint.sh && \
     echo '    "command": "~/.claude/statusline.sh",' >> /entrypoint.sh && \
