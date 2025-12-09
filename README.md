@@ -27,8 +27,6 @@ A secure, isolated Docker container environment for experimental coding and AI-a
 - Team onboarding with consistent environments
 - Production development workflows
 - VS Code integration with extensions and debugging
-- Granular network firewall rules
-- Long-term project development
 
 YOLO is a lightweight, opinionated sandbox for fast iteration. The official devcontainer is a comprehensive team development environment.
 
