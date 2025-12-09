@@ -20,7 +20,9 @@ Claude Code is installed via npm during the image build process.
 
 For unrestricted access (bypasses all permission checks):
 ```bash
-./claude-unrestricted.sh
+claude-unrestricted
 ```
 
 **Warning**: Only use in secure, isolated environments like this container.
+
+**Note**: This command is automatically installed in the container - it's not part of the repository.

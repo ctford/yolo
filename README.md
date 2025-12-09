@@ -164,9 +164,11 @@ ANTHROPIC_AUTH_TOKEN="your-token-here" ./yolo.sh
 
 After authenticating with either method above, run Claude Code in unrestricted mode (bypasses all permission checks):
 ```bash
-./claude-unrestricted.sh
+claude-unrestricted
 ```
 **Warning**: Only use in this isolated container environment.
+
+**Note**: This command is automatically installed in the container at `/usr/local/bin/claude-unrestricted` - it's not checked into your repository.
 
 ## Safety Philosophy
 

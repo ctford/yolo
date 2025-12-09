@@ -98,7 +98,7 @@ RUN chown coder:coder /workspace
 # Switch to non-root user
 USER coder
 
-# Create entrypoint script to set up home directory (needed because home is mounted as tmpfs)
+# Create entrypoint script to set up home directory and generate claude-unrestricted
 USER root
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'set -e' >> /entrypoint.sh && \
@@ -110,6 +110,38 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo '# Start bash shell' >> /entrypoint.sh && \
     echo 'exec /bin/bash' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
+
+# Create claude-unrestricted command in /usr/local/bin (outside workspace)
+RUN echo '#!/bin/bash' > /usr/local/bin/claude-unrestricted && \
+    echo '# claude-unrestricted - Start Claude Code with all restrictions disabled' >> /usr/local/bin/claude-unrestricted && \
+    echo '# WARNING: This bypasses all safety mechanisms. Use only in secure environments.' >> /usr/local/bin/claude-unrestricted && \
+    echo '' >> /usr/local/bin/claude-unrestricted && \
+    echo 'set -euo pipefail' >> /usr/local/bin/claude-unrestricted && \
+    echo '' >> /usr/local/bin/claude-unrestricted && \
+    echo '# Check if running inside the container' >> /usr/local/bin/claude-unrestricted && \
+    echo 'if [[ "$(whoami)" != "coder" ]] || [[ ! -d /workspace ]]; then' >> /usr/local/bin/claude-unrestricted && \
+    echo '    echo "❌ Error: This script must be run inside the yolo container"' >> /usr/local/bin/claude-unrestricted && \
+    echo '    echo "   Start the container with: ./yolo.sh"' >> /usr/local/bin/claude-unrestricted && \
+    echo '    exit 1' >> /usr/local/bin/claude-unrestricted && \
+    echo 'fi' >> /usr/local/bin/claude-unrestricted && \
+    echo '' >> /usr/local/bin/claude-unrestricted && \
+    echo 'echo "⚠️  WARNING: Starting Claude Code in unrestricted mode"' >> /usr/local/bin/claude-unrestricted && \
+    echo 'echo "   This bypasses all safety mechanisms and permission checks"' >> /usr/local/bin/claude-unrestricted && \
+    echo 'echo "   Use only in secure, isolated environments"' >> /usr/local/bin/claude-unrestricted && \
+    echo 'echo ""' >> /usr/local/bin/claude-unrestricted && \
+    echo '' >> /usr/local/bin/claude-unrestricted && \
+    echo '# Check if Claude Code is installed' >> /usr/local/bin/claude-unrestricted && \
+    echo 'if ! command -v claude >/dev/null 2>&1; then' >> /usr/local/bin/claude-unrestricted && \
+    echo '    echo "❌ Claude Code is not installed. Please install it first:"' >> /usr/local/bin/claude-unrestricted && \
+    echo '    echo "   npm install -g @anthropic-ai/claude-code"' >> /usr/local/bin/claude-unrestricted && \
+    echo '    exit 1' >> /usr/local/bin/claude-unrestricted && \
+    echo 'fi' >> /usr/local/bin/claude-unrestricted && \
+    echo '' >> /usr/local/bin/claude-unrestricted && \
+    echo '# Start Claude Code in unrestricted mode (will use browser OAuth if not authenticated)' >> /usr/local/bin/claude-unrestricted && \
+    echo 'exec claude \' >> /usr/local/bin/claude-unrestricted && \
+    echo '    --dangerously-skip-permissions \' >> /usr/local/bin/claude-unrestricted && \
+    echo '    "$@"' >> /usr/local/bin/claude-unrestricted && \
+    chmod +x /usr/local/bin/claude-unrestricted
 
 USER coder
 ENTRYPOINT ["/entrypoint.sh"]
