@@ -258,6 +258,15 @@ run_container() {
 
     # Build environment variable arguments
     local env_args=()
+
+    # Pass through TERM for proper terminal emulation (needed for interactive Claude Code)
+    # Use xterm-256color if TERM is not set or is basic/dumb
+    local term_value="${TERM:-xterm-256color}"
+    if [[ "$term_value" == "dumb" ]] || [[ "$term_value" == "unknown" ]]; then
+        term_value="xterm-256color"
+    fi
+    env_args+=(-e "TERM=$term_value")
+
     if [[ -n "${ANTHROPIC_API_KEY:-}" ]]; then
         env_args+=(-e ANTHROPIC_API_KEY)
     else
