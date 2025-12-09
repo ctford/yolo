@@ -155,9 +155,13 @@ USER root
 RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'set -e' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
+    echo '# Add /usr/games to PATH for tools like cowsay' >> /entrypoint.sh && \
+    echo 'export PATH=\$PATH:/usr/games' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
     echo '# Recreate home directory setup (tmpfs overlay clears it)' >> /entrypoint.sh && \
     echo 'mkdir -p ~/.config/claude-code ~/.claude' >> /entrypoint.sh && \
-    echo 'echo "cd /workspace" > ~/.bashrc' >> /entrypoint.sh && \
+    echo 'echo "export PATH=\$PATH:/usr/games" > ~/.bashrc' >> /entrypoint.sh && \
+    echo 'echo "cd /workspace" >> ~/.bashrc' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Display YOLO skull banner' >> /entrypoint.sh && \
     echo 'cat << '"'"'BANNER_EOF'"'"'' >> /entrypoint.sh && \
@@ -244,12 +248,9 @@ RUN echo '#!/bin/bash' > /entrypoint.sh && \
     echo 'SETTINGS_EOF' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
     echo '# Run Claude Code by default, or execute provided command' >> /entrypoint.sh && \
-    echo 'echo "DEBUG: Entrypoint received \$# arguments: \$@" >&2' >> /entrypoint.sh && \
     echo 'if [ \$# -eq 0 ]; then' >> /entrypoint.sh && \
-    echo '    echo "DEBUG: No arguments, running claude-unrestricted" >&2' >> /entrypoint.sh && \
     echo '    exec claude-unrestricted' >> /entrypoint.sh && \
     echo 'else' >> /entrypoint.sh && \
-    echo '    echo "DEBUG: Running provided command" >&2' >> /entrypoint.sh && \
     echo '    exec "\$@"' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
